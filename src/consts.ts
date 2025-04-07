@@ -27,7 +27,7 @@ export const PROJECTS: Metadata = {
 export const LINKS: Metadata = {
   TITLE: "Links",
   DESCRIPTION:
-    "A collection of my projects, with links to repositories and demos.",
+    "A collection of my Socials, with links to repositories and demos.",
 };
 
 export const SOCIALS: Socials = [
