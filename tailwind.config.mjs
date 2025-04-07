@@ -9,9 +9,9 @@ export default {
       colors: {
         subTitle: "#9C9E9F",
         subText: "#9EA1A1",
-        bg: "#9EA1A1",
-        bgl: "#06080A",
-        bgll: "#303030",
+        fg: "#C1C4C4",
+        bg: "#06080a",
+        bgl: "#303030",
         nothingRed: "#D71921",
       },
       fontFamily: {

@@ -32,43 +32,50 @@ const work = await Promise.all(
 
 <PageLayout title={HOME.TITLE} description={HOME.DESCRIPTION}>
   <Container>
-  <h4 class="animate font-ntype82 text-4xl text-black dark:text-white float-left">
+  <h4 class="animate font-ntype82 font-extrabold text-4xl text-black dark:text-white float-left">
       Hi,
     </h4>
-    <h4 class="animate font-ntype82 text-4xl text-black dark:text-white pl-2 float-left">
+    <h4 class="animate font-ntype82 font-extrabold text-4xl text-black dark:text-white pl-2 float-left">
         I'm
       </h4>
-    <h4 class="animate font-ntype82 text-4xl float-left dark:text-white pl-2 pr-1">
+    <h4 class="animate font-ntype82 font-extrabold text-4xl float-left dark:text-white pl-2 pr-1">
       Costeer
     </h4>
     <div class="animate underLine"></div>
 
-    <div class="space-y-20 float-end">
+    <div class="space-y-10">
       <section>
         <article class="space-y-4">
-          <p class="animate font-Roboto dark:text-bgll subHeader">
+          <p class="float-left animate font-Roboto dark:text-bgl subHeader">
             and welcome to my little corner of the internet.
           </p>
-          <p class="animate font-Roboto text-xl">
+
+          <br>
+          <br>
+
+          <p class="animate font-Roboto text-xl dark:text-fg">
             I am a Bisexual hobby developer and open source enthusiast from Germany.
             I'm interested in all things tech, especially Linux and more specifically
-            Nixos.
-          </p>
-          <p class="animate font-Roboto text-lg">
-            This websites design is inspird by the NothingOS design language. Its built with
-            Astro and styled using Tailwind CSS.
-          </p>
-          <p class="animate font-Roboto text-lg">
-            Visit
-            <Link href="https://github.com/markhorn-dev/astro-nano" aria-label="Astro Nano on Github" external>
-              Astro Nano on Github
+            <Link href="https://www.youtube.com/watch?v=CwfKlX3rA6E" aria-label="Nixos" external>
+            NixOS.
             </Link>
-            to fork the repository, read the docs or one-click deploy on Vercel or Netlify.
+          </p>
+
+          <p class="animate font-Roboto text-lg dark:text-fg">
+            This websites design is inspird by
+            <Link href="https://de.nothing.tech/pages/nothing-os-3" aria-label="Nothing's" external>
+            Nothing's
+            </Link>
+            design language. Its built with Astro and styled using Tailwind CSS.
+          </p>
+          <p class="animate font-Roboto text-lg dark:text-fg">
+            Bellow you can find some of my latest notes and open source projects.
+
           </p>
         </article>
       </section>
 
-      <section class="animate">
+    <section class="animate">
               <div class="flex flex-wrap gap-y-0 items-center justify-between">
                 <div class="line"></div>
               </div>

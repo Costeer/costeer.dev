@@ -10,17 +10,12 @@ export const SITE: Site = {
 
 export const HOME: Metadata = {
   TITLE: "~/home",
-  DESCRIPTION: "Astro Nano is a minimal and lightweight blog and portfolio.",
+  DESCRIPTION: "my corner of the internet.",
 };
 
 export const BLOG: Metadata = {
   TITLE: "~/notes",
   DESCRIPTION: "A collection of articles on topics I am passionate about.",
-};
-
-export const WORK: Metadata = {
-  TITLE: "Work",
-  DESCRIPTION: "Where I have worked and what I have done.",
 };
 
 export const PROJECTS: Metadata = {
@@ -29,10 +24,16 @@ export const PROJECTS: Metadata = {
     "A collection of my projects, with links to repositories and demos.",
 };
 
+export const LINKS: Metadata = {
+  TITLE: "Links",
+  DESCRIPTION:
+    "A collection of my projects, with links to repositories and demos.",
+};
+
 export const SOCIALS: Socials = [
   {
     NAME: "links",
-    HREF: "https://www.linkedin.com/in/markhorn-dev",
+    HREF: "links",
   },
   {
     NAME: "github",

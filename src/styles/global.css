@@ -30,19 +30,20 @@ html.dark {
 html,
 body {
   @apply size-full;
-  background-color: #06080a;
+  @apply dark:bg-bg;
 }
 
 body {
   @apply font-sans antialiased;
   @apply flex flex-col;
   @apply text-black/50 dark:text-white/75;
-  background-color: #06080a;
+  @apply dark:bg-bg;
 }
 
 header {
   @apply fixed top-0 left-0 right-0 z-50 py-5;
-  background-color: #06080a;
+  @apply dark:bg-bg/85;
+  @apply backdrop-blur-sm;
   border-bottom: 1px solid #1d1f21;
 }
 
@@ -67,6 +68,14 @@ footer {
 .line {
   width: 100%;
   height: 1px;
+  background-color: #1d1f21;
+}
+
+.lineSmoll {
+  @apply mx-auto;
+  @apply my-2;
+  width: 50%;
+  height: 2px;
   background-color: #1d1f21;
 }
 
