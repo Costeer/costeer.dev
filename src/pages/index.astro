@@ -32,47 +32,59 @@ const work = await Promise.all(
 
 <PageLayout title={HOME.TITLE} description={HOME.DESCRIPTION}>
   <Container>
-    <h4 class="animate font-semibold text-black dark:text-white">
-      Hi, I'm Nano <span class="text-xl">👋🏻</span> 
+  <h4 class="animate font-ntype82 text-4xl text-black dark:text-white float-left">
+      Hi,
     </h4>
-    <div class="space-y-16">
+    <h4 class="animate font-ntype82 text-4xl text-black dark:text-white pl-2 float-left">
+        I'm
+      </h4>
+    <h4 class="animate font-ntype82 text-4xl float-left dark:text-white pl-2 pr-1">
+      Costeer
+    </h4>
+    <div class="animate underLine"></div>
+
+    <div class="space-y-20 float-end">
       <section>
         <article class="space-y-4">
-          <p class="animate">
-            I am a minimal, seo friendly, accessible portfolio and blog for developers. 
-            I am an even more lightweight version of my popular theme
-            <Link href="https://github.com/markhorn-dev/astro-sphere" aria-label="Astro Sphere on Github" external>
-              Astro Sphere
-            </Link>.
-            I have a lighthouse scores of 100 across the board for performance, 
-            accesibility, best practices and SEO.
+          <p class="animate font-Roboto dark:text-bgll subHeader">
+            and welcome to my little corner of the internet.
           </p>
-          <p class="animate">
-            I come packed with full type safety, a sitemap, an rss feed, markdown 
-            and mdx support (use components in your markdown) through astro integrations.
-            I am styled with tailwind and come preconfigured with light, dark and 
-            system/os theme preferences out of the box.
+          <p class="animate font-Roboto text-xl">
+            I am a Bisexual hobby developer and open source enthusiast from Germany.
+            I'm interested in all things tech, especially Linux and more specifically
+            Nixos.
           </p>
-          <p class="animate">
+          <p class="animate font-Roboto text-lg">
+            This websites design is inspird by the NothingOS design language. Its built with
+            Astro and styled using Tailwind CSS.
+          </p>
+          <p class="animate font-Roboto text-lg">
             Visit
             <Link href="https://github.com/markhorn-dev/astro-nano" aria-label="Astro Nano on Github" external>
               Astro Nano on Github
             </Link>
-            to fork the repository, read the docs or one-click deploy on Vercel or Netlify. 
+            to fork the repository, read the docs or one-click deploy on Vercel or Netlify.
           </p>
         </article>
       </section>
 
-      <section class="animate space-y-6">
-        <div class="flex flex-wrap gap-y-2 items-center justify-between">
-          <h5 class="font-semibold text-black dark:text-white">
+      <section class="animate">
+              <div class="flex flex-wrap gap-y-0 items-center justify-between">
+                <div class="line"></div>
+              </div>
+      </section>
+
+
+      <section class="animate space-y-2">
+        <div class="flex flex-wrap gap-y-1 items-center justify-between">
+          <h5 class="font-semibold text-black dark:text-subText">
             Latest posts
           </h5>
           <Link href="/blog">
             See all posts
           </Link>
         </div>
-        <ul class="flex flex-col gap-4">
+        <ul class="flex flex-col gap-1">
           {blog.map(post => (
             <li>
               <ArrowCard entry={post} />
@@ -81,45 +93,22 @@ const work = await Promise.all(
         </ul>
       </section>
 
-      <section class="animate space-y-6">
-        <div class="flex flex-wrap gap-y-2 items-center justify-between">
-          <h5 class="font-semibold text-black dark:text-white">
-            Work Experience
-          </h5>
-          <Link href="/work">
-            See all work
-          </Link>
+      <section class="animate">
+        <div class="flex flex-wrap items-center justify-between">
+          <div class="line"></div>
         </div>
-        <ul class="flex flex-col space-y-4">
-          {work.map(entry => (
-            <li>
-              <div class="text-sm opacity-75">
-                {dateRange(entry.data.dateStart, entry.data.dateEnd)}
-              </div>
-              <div class="font-semibold text-black dark:text-white">
-                {entry.data.company}
-              </div>
-              <div class="text-sm opacity-75">
-                {entry.data.role}
-              </div>
-              <article>
-                <entry.Content />
-              </article>
-            </li>
-          ))}
-        </ul>
       </section>
 
-      <section class="animate space-y-6">
-        <div class="flex flex-wrap gap-y-2 items-center justify-between">
-          <h5 class="font-semibold text-black dark:text-white">
+      <section class="animate space-y-2">
+        <div class="flex flex-wrap gap-y-1 items-center justify-between">
+          <h5 class="font-semibold text-black dark:text-subText">
             Recent projects
           </h5>
           <Link href="/projects">
             See all projects
           </Link>
         </div>
-        <ul class="flex flex-col gap-4">
+        <ul class="flex flex-col gap-1">
           {projects.map(project => (
             <li>
               <ArrowCard entry={project} />
@@ -127,6 +116,13 @@ const work = await Promise.all(
           ))}
         </ul>
       </section>
+
+      <section class="animate">
+              <div class="flex flex-wrap items-center justify-between">
+                <div class="line"></div>
+              </div>
+      </section>
+
 
       <section class="animate space-y-4">
         <h5 class="font-semibold text-black dark:text-white">
@@ -152,7 +148,7 @@ const work = await Promise.all(
               {SITE.EMAIL}
             </Link>
           </li>
-        </ul>
+       </ul>
       </section>
     </div>
   </Container>

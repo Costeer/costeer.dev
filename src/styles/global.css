@@ -2,9 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "NType82"; /* This is the name you'll use in Tailwind config */
+  src: url("/fonts/NType82-Regular.otf") format("opentype"); /* Path relative to the 'public' folder */
+  font-weight: 400; /* 400 is standard for 'Regular' weight */
+  font-style: normal;
+  font-display: swap; /* Optional: Improves perceived performance */
+}
+
+@font-face {
+  font-family: "Roboto"; /* This is the name you'll use in Tailwind config */
+  src: url("/fonts/Roboto.ttf") format("truetype"); /* Path relative to the 'public' folder */
+  font-weight: 400; /* 400 is standard for 'Regular' weight */
+  font-style: normal;
+  font-display: swap; /* Optional: Improves perceived performance */
+}
+
 html {
   overflow-y: scroll;
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 html.dark {
@@ -14,19 +30,20 @@ html.dark {
 html,
 body {
   @apply size-full;
+  background-color: #06080a;
 }
 
 body {
   @apply font-sans antialiased;
   @apply flex flex-col;
-  @apply bg-stone-100 dark:bg-stone-900;
   @apply text-black/50 dark:text-white/75;
+  background-color: #06080a;
 }
 
 header {
   @apply fixed top-0 left-0 right-0 z-50 py-5;
-  @apply bg-stone-100/75 dark:bg-stone-900/25;
-  @apply backdrop-blur-sm saturate-200;
+  background-color: #06080a;
+  border-bottom: 1px solid #1d1f21;
 }
 
 main {
@@ -37,10 +54,34 @@ footer {
   @apply py-5 text-sm;
 }
 
+.underLine {
+  width: 7.5rem;
+  float: left;
+  margin-left: -7.1rem;
+  margin-top: 2rem;
+  height: 3px;
+  background-color: #d71921;
+  rotate: -2deg;
+}
+
+.line {
+  width: 100%;
+  height: 1px;
+  background-color: #1d1f21;
+}
+
+.subHeader {
+  margin-top: -0.9em;
+  margin-bottom: -0.4rem;
+  margin-left: 13.5rem;
+  rotate: -1deg;
+}
+
 article {
   @apply max-w-full prose dark:prose-invert prose-img:mx-auto prose-img:my-auto;
   @apply prose-headings:font-semibold prose-p:font-serif;
   @apply prose-headings:text-black prose-headings:dark:text-white;
+  border: none;
 }
 
 @layer utilities {
@@ -48,10 +89,12 @@ article {
     @apply font-sans text-current underline underline-offset-2;
     @apply decoration-black/15 dark:decoration-white/30;
     @apply transition-colors duration-300 ease-in-out;
+    border: none;
   }
   article a:hover {
     @apply text-black dark:text-white;
     @apply decoration-black/25 dark:decoration-white/50;
+    border: none;
   }
 }
 
