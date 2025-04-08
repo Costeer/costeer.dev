@@ -13,19 +13,19 @@ export const HOME: Metadata = {
   DESCRIPTION: "my corner of the internet.",
 };
 
-export const BLOG: Metadata = {
+export const NOTES: Metadata = {
   TITLE: "~/notes",
   DESCRIPTION: "A collection of articles on topics I am passionate about.",
 };
 
 export const PROJECTS: Metadata = {
-  TITLE: "Projects",
+  TITLE: "~/projects",
   DESCRIPTION:
     "A collection of my projects, with links to repositories and demos.",
 };
 
 export const LINKS: Metadata = {
-  TITLE: "Links",
+  TITLE: "~/web",
   DESCRIPTION:
     "A collection of my Socials, with links to repositories and demos.",
 };
