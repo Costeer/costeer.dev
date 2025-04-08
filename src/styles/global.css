@@ -30,19 +30,19 @@ html.dark {
 html,
 body {
   @apply size-full;
-  @apply dark:bg-bg;
+  @apply bg-bg;
 }
 
 body {
   @apply font-sans antialiased;
   @apply flex flex-col;
-  @apply text-black/50 dark:text-white/75;
-  @apply dark:bg-bg;
+  @apply text-white/75;
+  @apply bg-bg;
 }
 
 header {
   @apply fixed top-0 left-0 right-0 z-50 py-5;
-  @apply dark:bg-bg/85;
+  @apply bg-bg/85;
   @apply backdrop-blur-sm;
   border-bottom: 1px solid #1d1f21;
 }
@@ -87,23 +87,20 @@ footer {
 }
 
 article {
-  @apply max-w-full prose dark:prose-invert prose-img:mx-auto prose-img:my-auto;
+  @apply max-w-full prose-invert prose-img:mx-auto prose-img:my-auto;
   @apply prose-headings:font-semibold prose-p:font-serif;
-  @apply prose-headings:text-black prose-headings:dark:text-white;
-  border: none;
+  @apply prose-headings:text-white;
 }
 
 @layer utilities {
   article a {
     @apply font-sans text-current underline underline-offset-2;
-    @apply decoration-black/15 dark:decoration-white/30;
+    @apply decoration-white/30;
     @apply transition-colors duration-300 ease-in-out;
-    border: none;
   }
   article a:hover {
-    @apply text-black dark:text-white;
-    @apply decoration-black/25 dark:decoration-white/50;
-    border: none;
+    @apply text-white;
+    @apply decoration-white/50;
   }
 }
 
