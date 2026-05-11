@@ -1,0 +1,55 @@
+<script>
+  import Lenis from 'lenis';
+
+  const STORAGE_KEY = 'smooth-scroll-enabled';
+  let lenis: Lenis | undefined;
+  let rafId = 0;
+
+  function prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  function shouldEnableSmoothScroll() {
+    if (prefersReducedMotion()) return false;
+    if (localStorage.getItem('a11y-reduce-motion') === 'true') return false;
+    return localStorage.getItem(STORAGE_KEY) !== 'false';
+  }
+
+  function stopLenis() {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = 0;
+    lenis?.destroy();
+    lenis = undefined;
+    document.documentElement.removeAttribute('data-lenis-smooth');
+  }
+
+  function startLenis() {
+    if (lenis || !shouldEnableSmoothScroll()) return;
+    lenis = new Lenis({
+      duration: 0.6,
+      wheelMultiplier: 0.75,
+      touchMultiplier: 0.9,
+      smoothWheel: true,
+      syncTouch: false,
+    });
+    document.documentElement.setAttribute('data-lenis-smooth', 'true');
+
+    const raf = (time: number) => {
+      lenis?.raf(time);
+      rafId = requestAnimationFrame(raf);
+    };
+    rafId = requestAnimationFrame(raf);
+  }
+
+  function applySmoothScrollPreference() {
+    if (shouldEnableSmoothScroll()) startLenis();
+    else stopLenis();
+  }
+
+  document.addEventListener('astro:page-load', applySmoothScrollPreference);
+  document.addEventListener('astro:before-swap', stopLenis);
+  document.addEventListener('smooth-scroll-preference-change', applySmoothScrollPreference);
+  window
+    .matchMedia('(prefers-reduced-motion: reduce)')
+    .addEventListener('change', applySmoothScrollPreference);
+</script>

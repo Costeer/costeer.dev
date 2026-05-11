@@ -27,7 +27,7 @@ const groups = groupByYearMonth(posts, locale);
   </header>
   {
     groups.length === 0 ? (
-      <p class="text-base-content/70">{t('archives.empty')}</p>
+      <p class="text-base-content">{t('archives.empty')}</p>
     ) : (
       <div id="archives">
         {groups.map((g, gi) => {
@@ -106,7 +106,7 @@ const groups = groupByYearMonth(posts, locale);
   #archives .year::after {
     content: '';
     position: absolute;
-    border-radius: 50%;
+    border-radius: 0;
     width: 12px;
     height: 12px;
     left: 73px;
@@ -197,7 +197,7 @@ const groups = groupByYearMonth(posts, locale);
   #archives ul li > a::before {
     content: '';
     position: absolute;
-    border-radius: 50%;
+    border-radius: 0;
     width: 8px;
     height: 8px;
     top: 50%;

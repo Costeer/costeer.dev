@@ -20,8 +20,8 @@ than animations and ad slots.
   right rail with “Recently Updated” and “Trending Tags”.
 - **Light & dark themes** — the original Chirpy palette, ported to
   daisyUI v5 tokens, with a circular reveal transition between modes.
-- **Bilingual content (EN + FR)** — English served at the root, French
-  under `/fr/`. Posts are paired by `translationKey`, and a language
+- **Bilingual content (EN + DE)** — English served at the root, German
+  under `/de/`. Posts are paired by `translationKey`, and a language
   switcher in the topbar jumps between translations. Set
   `multilingual: false` in `src/config.ts` to ship a single-language
   site.
@@ -31,8 +31,8 @@ than animations and ad slots.
 - **LaTeX math** — opt-in KaTeX support per post via `math: true`.
 - **Instant search** — [Pagefind](https://pagefind.app/) generates a
   static search index at build time; the search overlay loads on demand.
-- **Comments** — [Giscus](https://giscus.app/) integration backed by
-  GitHub Discussions, with per-post opt-out.
+- **Comments** — [Mastodon](https://joinmastodon.org/) integration where
+  replies to each post's Mastodon status appear as comments.
 - **Smooth navigation** — Astro view transitions with a subtle fade and
   motion-reduced fallback for accessibility.
 - **SEO out of the box** — OpenGraph, Twitter cards, RSS feeds per locale,
@@ -45,7 +45,7 @@ than animations and ad slots.
 - [**Tailwind CSS v4**](https://tailwindcss.com/) via the `@tailwindcss/vite`
   plugin, with [**daisyUI v5**](https://daisyui.com/) for theming
 - [**Pagefind**](https://pagefind.app/) for static search
-- [**Giscus**](https://giscus.app/) for comments
+- [**Mastodon**](https://joinmastodon.org/) for comments
 - [**Shiki**](https://shiki.style/), [**KaTeX**](https://katex.org/), and
   [**Lucide**](https://lucide.dev/) icons
 
@@ -53,7 +53,7 @@ than animations and ad slots.
 
 Almost everything is wired through a single typed config file at
 [`src/config.ts`](https://github.com/) — site title, author, navigation,
-social links, posts-per-page, default locale, Giscus credentials, and
+social links, posts-per-page, default locale, Mastodon comment settings, and
 feature flags. Restart `bun run dev` after editing it.
 
 New posts go in `src/content/posts/<locale>/`. Pair translations by

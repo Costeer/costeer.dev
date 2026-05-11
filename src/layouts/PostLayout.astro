@@ -1,12 +1,11 @@
 ---
 import BaseLayout from './BaseLayout.astro';
-import PostNav from '../components/PostNav.astro';
 import SmartImage from '../components/SmartImage.astro';
 import TableOfContents from '../components/islands/TableOfContents.astro';
-import Giscus from '../components/islands/Giscus.astro';
+import MastodonComments from '../components/islands/MastodonComments.astro';
 import MathStyles from '../components/MathStyles.astro';
 import { Icon } from 'astro-icon/components';
-import { GISCUS, SITE, type Locale } from '../config';
+import { MASTODON_COMMENTS, SITE, type Locale } from '../config';
 import { useTranslations, stripLocale, formatDate, isoDate, localizedPath } from '../i18n/utils';
 import { readingTime } from '../utils/reading-time';
 import {
@@ -34,7 +33,7 @@ interface Props {
   locale: Locale;
 }
 
-const { post, headings, body, prev, next, locale } = Astro.props;
+const { post, headings, body, locale } = Astro.props;
 const t = useTranslations(locale);
 const minutes = readingTime(body).minutes;
 
@@ -47,7 +46,7 @@ for (const [lang, p] of Object.entries(translations)) {
 // Locales that actually have a published version of this post.
 const availableLocales = (Object.keys(translationLinks) as Locale[]).sort();
 
-const commentsEnabled = post.data.comments !== false && GISCUS.enabled;
+const commentsEnabled = post.data.comments !== false && MASTODON_COMMENTS.enabled;
 const pathWithoutLocale = stripLocale(Astro.url.pathname);
 
 const heroSrc = heroImageSrc(post);
@@ -56,7 +55,7 @@ const showHero = shouldShowHero(post);
 const heroAlt = post.data.heroImageAlt ?? '';
 
 const articleClass = SITE.boxedArticles
-  ? 'border-base-300 bg-base-100 rounded-md border px-5 py-8 sm:px-8 sm:py-10'
+  ? 'border-base-300 bg-base-100 rounded-none border px-5 py-8 sm:px-8 sm:py-10'
   : 'px-1 py-6 sm:px-2 sm:py-8';
 
 // Use hero image for OG if available, otherwise fallback to the generated OG image
@@ -112,9 +111,9 @@ const crumbs = [
       >
         {post.data.title}
       </h1>
-      <p class="text-base-content/65 mt-3 text-lg">{post.data.description}</p>
+      <p class="text-base-content mt-3 text-lg">{post.data.description}</p>
 
-      <div class="text-base-content/70 mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+      <div class="text-base-content mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
         <span class="inline-flex items-center gap-1">
           <Icon name="lucide:calendar-days" width={14} height={14} />
           <time datetime={isoDate(post.data.pubDate)}>{formatDate(post.data.pubDate, locale)}</time>
@@ -135,7 +134,7 @@ const crumbs = [
               <Icon name="lucide:folder" width={14} height={14} />
               {post.data.categories.map((c, i) => (
                 <>
-                  {i > 0 && <span class="text-base-content/40 mx-0.5">,</span>}
+                  {i > 0 && <span class="text-base-content mx-0.5">,</span>}
                   <a href={categoryPath(locale, c)} class="hover:text-primary">
                     {c}
                   </a>
@@ -150,6 +149,18 @@ const crumbs = [
           {t('post.readingTime')}
         </span>
       </div>
+
+      {
+        post.data.tags.length > 0 && (
+          <div class="mt-5 flex flex-wrap gap-2" aria-label={t('post.tags')}>
+            {post.data.tags.map((tag) => (
+              <a href={tagPath(locale, tag)} class="post-tag text-sm">
+                {tag}
+              </a>
+            ))}
+          </div>
+        )
+      }
     </header>
 
     {
@@ -167,7 +178,7 @@ const crumbs = [
             />
           </div>
           {heroAlt && (
-            <figcaption class="text-base-content/70 mt-2 text-center text-xs">{heroAlt}</figcaption>
+            <figcaption class="text-base-content mt-2 text-center text-xs">{heroAlt}</figcaption>
           )}
         </figure>
       )
@@ -178,28 +189,11 @@ const crumbs = [
     </div>
 
     {
-      post.data.tags.length > 0 && (
-        <footer class="border-base-300 mt-10 flex flex-wrap items-center gap-2 border-t pt-6">
-          <span class="text-base-content/70 text-sm font-semibold tracking-wide uppercase">
-            {t('post.tags')}
-          </span>
-          {post.data.tags.map((tag) => (
-            <a href={tagPath(locale, tag)} class="post-tag text-xs">
-              {tag}
-            </a>
-          ))}
-        </footer>
-      )
-    }
-
-    <PostNav prev={prev} next={next} locale={locale} />
-
-    {
       commentsEnabled ? (
-        <Giscus locale={locale} />
+        <MastodonComments locale={locale} statusUrl={post.data.mastodonStatusUrl} />
       ) : (
         post.data.comments === false && (
-          <p class="text-base-content/70 mt-10 text-sm">{t('post.commentsDisabled')}</p>
+          <p class="text-base-content mt-10 text-sm">{t('post.commentsDisabled')}</p>
         )
       )
     }

@@ -108,7 +108,7 @@ export default defineConfig({
     ],
   },
 
-  // i18n config: EN is default and serves at root (no prefix), FR served at /fr.
+  // i18n config: EN is default and serves at root (no prefix), DE served at /de.
   // We rely on filesystem routing (src/pages and src/pages/[...locale]) for the actual
   // routes, but still expose locales here so integrations like sitemap can
   // generate hreflang alternates correctly.
@@ -228,10 +228,10 @@ export default defineConfig({
   },
 
   fonts: [
-    // Source Sans 3 — main UI font from @fontsource/source-sans-3 npm package
+    // Lexend — main UI font from @fontsource/lexend npm package
     {
-      name: 'Source Sans 3',
-      cssVariable: '--font-source-sans-3',
+      name: 'Lexend',
+      cssVariable: '--font-lexend',
       provider: fontProviders.local(),
       options: {
         variants: [
@@ -239,28 +239,52 @@ export default defineConfig({
             weight: '400',
             style: 'normal',
             src: [
-              './node_modules/@fontsource/source-sans-3/files/source-sans-3-latin-400-normal.woff2',
+              './node_modules/@fontsource/lexend/files/lexend-latin-400-normal.woff2',
             ],
           },
           {
             weight: '600',
             style: 'normal',
             src: [
-              './node_modules/@fontsource/source-sans-3/files/source-sans-3-latin-600-normal.woff2',
+              './node_modules/@fontsource/lexend/files/lexend-latin-600-normal.woff2',
             ],
           },
           {
             weight: '700',
             style: 'normal',
             src: [
-              './node_modules/@fontsource/source-sans-3/files/source-sans-3-latin-700-normal.woff2',
+              './node_modules/@fontsource/lexend/files/lexend-latin-700-normal.woff2',
             ],
           },
           {
             weight: '900',
             style: 'normal',
             src: [
-              './node_modules/@fontsource/source-sans-3/files/source-sans-3-latin-900-normal.woff2',
+              './node_modules/@fontsource/lexend/files/lexend-latin-900-normal.woff2',
+            ],
+          },
+        ],
+      },
+    },
+    // OpenDyslexic — optional accessibility font
+    {
+      name: 'OpenDyslexic',
+      cssVariable: '--font-opendyslexic',
+      provider: fontProviders.local(),
+      options: {
+        variants: [
+          {
+            weight: '400',
+            style: 'normal',
+            src: [
+              './node_modules/@fontsource/opendyslexic/files/opendyslexic-latin-400-normal.woff2',
+            ],
+          },
+          {
+            weight: '700',
+            style: 'normal',
+            src: [
+              './node_modules/@fontsource/opendyslexic/files/opendyslexic-latin-700-normal.woff2',
             ],
           },
         ],

@@ -53,27 +53,11 @@ export interface SocialLink {
   icon: string;
 }
 
-export interface GiscusConfig {
+export interface MastodonCommentsConfig {
   /** Master switch. */
   enabled: boolean;
-  /** GitHub repo (e.g. `user/repo`). */
-  repo: string;
-  /** Repo ID (from giscus.app). */
-  repoId: string;
-  /** Discussion category. */
-  category: string;
-  /** Category ID. */
-  categoryId: string;
-  /** Discussion mapping strategy. */
-  mapping: 'pathname' | 'url' | 'title' | 'og:title' | 'specific' | 'number';
-  /** Strict matching. */
-  strict: '0' | '1';
-  /** Enable reactions on the main post. */
-  reactionsEnabled: '0' | '1';
-  /** Emit metadata events. */
-  emitMetadata: '0' | '1';
-  /** Comment input position. */
-  inputPosition: 'top' | 'bottom';
-  /** Lazy load. */
-  loading: 'lazy' | 'eager';
+  /** Optional default Mastodon instance origin, e.g. `https://mastodon.social`. */
+  instance?: string;
+  /** Optional profile URL used in setup/help copy. */
+  profileUrl?: string;
 }

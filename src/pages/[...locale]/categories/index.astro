@@ -27,7 +27,7 @@ const categories = await getCategoriesWithCount(locale);
   </header>
   {
     categories.length === 0 ? (
-      <p class="text-base-content/70">{t('categories.empty')}</p>
+      <p class="text-base-content">{t('categories.empty')}</p>
     ) : (
       <ul class="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
         {categories.map((cat) => (
@@ -37,7 +37,7 @@ const categories = await getCategoriesWithCount(locale);
                 <Icon name="lucide:folder" width={20} height={20} class="text-primary" />
                 <div class="flex-1">
                   <p class="font-semibold">{cat.name}</p>
-                  <p class="text-base-content/70 text-xs">
+                  <p class="text-base-content text-xs">
                     {cat.count} {cat.count === 1 ? t('list.totalPostsOne') : t('list.totalPosts')}
                   </p>
                 </div>

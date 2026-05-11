@@ -3,9 +3,9 @@
  *
  * Folder convention: `src/content/<collection>/<locale>/**`
  *  - posts/en/**  -> EN posts
- *  - posts/fr/**  -> FR posts
+ *  - posts/de/**  -> DE posts
  *  - pages/en/**  -> EN static pages (about, etc.)
- *  - pages/fr/**  -> FR static pages
+ *  - pages/de/**  -> DE static pages
  *
  * The locale is derived from the file path so authors do not need to set it
  * manually (but they may override it in frontmatter).
@@ -50,6 +50,8 @@ const baseFrontmatter = ({ image }: SchemaContext) =>
     dynamicPostCardHeight: z.boolean().optional(),
     canonicalURL: z.url().optional(),
     comments: z.boolean().optional(),
+    /** Public URL of the Mastodon status used as the comment thread. */
+    mastodonStatusUrl: z.url().optional(),
     toc: z.boolean().default(true),
     /** Pin to top of listings. */
     pinned: z.boolean().default(false),

@@ -42,9 +42,9 @@ const posts = (await getPosts(locale)).filter(
   ]}
 >
   <header class="mb-6">
-    <p class="text-base-content/70 text-sm tracking-wide uppercase">{t('list.categoryPosts')}</p>
+    <p class="text-base-content text-sm tracking-wide uppercase">{t('list.categoryPosts')}</p>
     <h1 class="text-3xl font-bold tracking-tight">{categoryName}</h1>
-    <p class="text-base-content/70 mt-1 text-sm">
+    <p class="text-base-content mt-1 text-sm">
       {posts.length}
       {posts.length === 1 ? t('list.totalPostsOne') : t('list.totalPosts')}
     </p>

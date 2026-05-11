@@ -1,6 +1,6 @@
 import avatarImg from './assets/images/site/avatar.svg';
 import ogDefaultImg from './assets/images/site/og-default.svg';
-import type { SiteConfig, NavItem, SocialLink, GiscusConfig } from './types/config';
+import type { SiteConfig, NavItem, SocialLink, MastodonCommentsConfig } from './types/config';
 
 /**
  * Global site + theme configuration.
@@ -14,7 +14,7 @@ export const SITE_IMAGES = {
   ogDefault: ogDefaultImg,
 } as const;
 
-export const locales = ['en', 'fr'] as const;
+export const locales = ['en', 'de'] as const;
 export type Locale = (typeof locales)[number];
 
 /**
@@ -28,7 +28,6 @@ export type Locale = (typeof locales)[number];
 const GITHUB_HANDLE = import.meta.env.PUBLIC_GITHUB_HANDLE ?? '';
 const GITHUB_REPO = import.meta.env.PUBLIC_GITHUB_REPO ?? 'chirping-astro';
 const TWITTER_HANDLE = import.meta.env.PUBLIC_TWITTER_HANDLE ?? '';
-const CONTACT_EMAIL = import.meta.env.PUBLIC_CONTACT_EMAIL ?? '';
 const THEME_REPO_URL = 'https://github.com/kannansuresh/chirping-astro';
 
 /**
@@ -44,21 +43,16 @@ export const REPO = {
 } as const;
 
 export const SITE: SiteConfig = {
-  // ==========================================
-  // ✅ SAFE TO EDIT (Content & Presentation)
-  // ==========================================
-
-  /** Default site title used as homepage <title> and meta. */
-  title: 'Chirping Astro',
+  title: 'costeer.dev',
   /** Site tagline / description. */
   description:
-    'A modern, multilingual Astro v6 theme inspired by Chirpy — built with Tailwind v4, daisyUI, MDX, Pagefind, and Giscus.',
+    'A modern, multilingual Astro v6 theme inspired by Chirpy — built with Tailwind v4, daisyUI, MDX, Pagefind, and Mastodon comments.',
   /** Author/handle shown in footer + meta. */
   author: {
-    name: 'Chirping Astro',
+    name: 'costeer',
     url: GITHUB_HANDLE ? `https://github.com/${GITHUB_HANDLE}` : undefined,
     avatar: avatarImg,
-    bio: 'A text-focused Astro V6 theme.',
+    bio: 'Im a developer and political activist from Germany',
   },
   /** Default OG image. */
   defaultOgImage: ogDefaultImg.src,
@@ -91,7 +85,7 @@ export const SITE: SiteConfig = {
     /** Whether to show the Privacy Policy link in the footer. */
     showPrivacyPolicy: true,
     /** Whether to show theme credits in the footer right side. Theme <themeName> */
-    showThemeCredits: true,
+    showThemeCredits: false,
     /** Label for the theme repository link in the right footer line. */
     themeName: 'Chirping Astro',
     /** Default upstream theme repository. */
@@ -142,33 +136,21 @@ export const SOCIALS: readonly SocialLink[] = [
     href: `https://x.com/${TWITTER_HANDLE}`,
     icon: 'simple-icons:x',
   },
-  CONTACT_EMAIL && {
-    label: 'Email',
-    href: `mailto:${CONTACT_EMAIL}`,
-    icon: 'lucide:mail',
-  },
   { label: 'RSS', href: '/rss.xml', icon: 'lucide:rss' },
 ].filter(Boolean) as SocialLink[];
 
 /**
- * Giscus comments. Set `enabled: false` to globally disable. Individual
+ * Mastodon comments. Set `enabled: false` to globally disable. Individual
  * posts may opt out via frontmatter `comments: false`.
  *
- * Generate values at https://giscus.app and either set them here or
- * (recommended) provide them via PUBLIC_GISCUS_* env vars at build time.
+ * Each post should set `mastodonStatusUrl` in frontmatter to the public
+ * Mastodon status announcing that blog post. Replies to that status are
+ * rendered as comments.
  */
-export const GISCUS: GiscusConfig = {
-  enabled: (import.meta.env.PUBLIC_GISCUS_ENABLED ?? 'false') === 'true',
-  repo: import.meta.env.PUBLIC_GISCUS_REPO ?? '',
-  repoId: import.meta.env.PUBLIC_GISCUS_REPO_ID ?? '',
-  category: import.meta.env.PUBLIC_GISCUS_CATEGORY ?? 'Announcements',
-  categoryId: import.meta.env.PUBLIC_GISCUS_CATEGORY_ID ?? '',
-  mapping: 'pathname',
-  strict: '0',
-  reactionsEnabled: '1',
-  emitMetadata: '0',
-  inputPosition: 'bottom',
-  loading: 'lazy',
+export const MASTODON_COMMENTS: MastodonCommentsConfig = {
+  enabled: (import.meta.env.PUBLIC_MASTODON_COMMENTS_ENABLED ?? 'false') === 'true',
+  instance: import.meta.env.PUBLIC_MASTODON_INSTANCE ?? 'https://mastodon.social',
+  profileUrl: import.meta.env.PUBLIC_MASTODON_PROFILE_URL,
 };
 
 /**

@@ -26,7 +26,7 @@ Depending on how you use this site, we may process:
 - Technical data: IP address, user agent, and performance/error logs.
 - Information you provide directly: email or message content when you contact us.
 - Comment data (if enabled): profile and comment metadata handled by
-  **[COMMENT_PROVIDER, e.g., Giscus/GitHub]**.
+  **[COMMENT_PROVIDER, e.g., Mastodon/GitHub]**.
 
 ## 3. How we use information
 

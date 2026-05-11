@@ -11,5 +11,8 @@ peer = true
 disable = false
 
 [run]
-bun = true
+# Let executable shebangs run with their intended runtime (Astro uses Node).
+# Running Astro under Bun can make native Node modules such as `sharp` fail to
+# load, which Astro reports as MissingSharp for image optimization requests.
+bun = false
 silent = false

@@ -8,6 +8,7 @@ import Footer from '../components/Footer.astro';
 import Panel from '../components/Panel.astro';
 import SEO from '../components/SEO.astro';
 import BackToTop from '../components/islands/BackToTop.astro';
+import LenisSmoothScroll from '../components/islands/LenisSmoothScroll.astro';
 import { ClientRouter } from 'astro:transitions';
 import faviconImg from '../assets/images/site/favicon.svg';
 import { SITE, type Locale } from '../config';
@@ -95,15 +96,17 @@ const meta: SeoMeta =
     <link
       rel="alternate"
       type="application/rss+xml"
-      title={`${SITE.title} (FR)`}
-      href={withBase('/fr/rss.xml')}
+      title={`${SITE.title} (DE)`}
+      href={withBase('/de/rss.xml')}
     />
     <SEO meta={meta} />
     {/* Custom fonts configured via Astro Fonts API */}
-    <Font cssVariable="--font-source-sans-3" />
+    <Font cssVariable="--font-lexend" />
+    <Font cssVariable="--font-opendyslexic" />
     <Font cssVariable="--font-lato" />
     <Font cssVariable="--font-jetbrains-mono" preload />
     <ClientRouter />
+    <LenisSmoothScroll />
     {/* Apply persisted theme as early as possible to avoid FOUC. */}
     <script is:inline>
       (function () {
@@ -129,7 +132,7 @@ const meta: SeoMeta =
   <body>
     <a
       href="#main"
-      class="focus:bg-primary focus:text-primary-content sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:px-3 focus:py-2"
+      class="focus:bg-primary focus:text-primary-content sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-none focus:px-3 focus:py-2"
     >
       {t('site.skipToContent')}
     </a>

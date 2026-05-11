@@ -3,7 +3,7 @@
  * OG Image generator using Satori + Resvg.
  *
  * Produces a 1200×630 PNG matching the Chirpy Astro theme style:
- * - Indigo-blue gradient background (primary color)
+ * - Purple gradient background (primary color)
  * - White card with title, description, category, date, and site branding
  * - Clean typography with good contrast
  */
@@ -82,7 +82,7 @@ export async function generateOgImage(data: OgImageData): Promise<Buffer> {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        background: 'linear-gradient(135deg, #1e3a5f 0%, #2a408e 40%, #4a6cf7 100%)',
+        background: 'linear-gradient(135deg, #3b0764 0%, #7e22ce 45%, #c084fc 100%)',
         padding: '40px',
       },
       children: {
@@ -117,7 +117,7 @@ export async function generateOgImage(data: OgImageData): Promise<Buffer> {
                       style: {
                         display: 'flex',
                         backgroundColor: data.category ? '#eef2ff' : 'transparent',
-                        color: '#2a408e',
+                        color: '#7e22ce',
                         fontSize: '18px',
                         fontWeight: 700,
                         padding: data.category ? '8px 20px' : '0',
@@ -212,7 +212,7 @@ export async function generateOgImage(data: OgImageData): Promise<Buffer> {
                               width: '12px',
                               height: '12px',
                               borderRadius: '50%',
-                              backgroundColor: '#2a408e',
+                              backgroundColor: '#7e22ce',
                             },
                             children: '',
                           },
@@ -224,7 +224,7 @@ export async function generateOgImage(data: OgImageData): Promise<Buffer> {
                               display: 'flex',
                               fontSize: '22px',
                               fontWeight: 700,
-                              color: '#2a408e',
+                              color: '#7e22ce',
                             },
                             children: SITE.title,
                           },

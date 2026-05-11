@@ -7,6 +7,8 @@ categories: [Guide]
 translationKey: getting-started
 pinned: true
 toc: true
+comments: true
+mastodonStatusUrl: 'https://mastodon.de/@costeer/116557295495592107'
 ---
 
 Welcome to your new blog! This sample post walks you through the basics of using **Chirping Astro**.
@@ -35,7 +37,7 @@ Key variables:
 | `SITE_URL`             | Your production URL (e.g., `https://myblog.com`)           |
 | `BASE_PATH`            | Set to `/<repo-name>` for GitHub Pages, blank otherwise    |
 | `PUBLIC_GITHUB_HANDLE` | Shows GitHub icon in sidebar                               |
-| `PUBLIC_GISCUS_*`      | Enable Giscus comments ([setup guide](https://giscus.app)) |
+| `PUBLIC_MASTODON_*`      | Enable Mastodon comments and set the instance/profile URLs |
 
 ## Writing posts
 

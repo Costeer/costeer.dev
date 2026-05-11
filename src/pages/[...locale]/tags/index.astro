@@ -27,15 +27,15 @@ const tags = await getTagsWithCount(locale);
   </header>
   {
     tags.length === 0 ? (
-      <p class="text-base-content/70">{t('tags.empty')}</p>
+      <p class="text-base-content">{t('tags.empty')}</p>
     ) : (
       <ul class="flex flex-wrap gap-2">
         {tags.map((tag) => (
           <li>
-            <a href={tagPath(locale, tag.name)} class="badge badge-lg gap-1">
+            <a href={tagPath(locale, tag.name)} class="post-tag gap-1">
               <Icon name="lucide:tag" width={12} height={12} />
               {tag.name}
-              <span class="text-base-content/70">{tag.count}</span>
+              <span>{tag.count}</span>
             </a>
           </li>
         ))}

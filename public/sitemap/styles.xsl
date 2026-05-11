@@ -26,7 +26,7 @@
             --text: #1f2328;
             --muted: #6b7280;
             --border: #e8e8e8;
-            --primary: #2a408e;
+            --primary: #7e22ce;
             --primary-soft: #e7ecf7;
             --row-hover: #fafbfd;
             --code-bg: #f1f3f5;
@@ -38,7 +38,7 @@
               --text: #e6e7e9;
               --muted: #9ca3af;
               --border: #2a2a2d;
-              --primary: #7895d4;
+              --primary: #d8b4fe;
               --primary-soft: #232a3d;
               --row-hover: #232427;
               --code-bg: #232427;
@@ -61,7 +61,7 @@
             background: var(--primary-soft); color: var(--primary);
             font-size: .75rem; font-weight: 600; letter-spacing: .04em;
             text-transform: uppercase; padding: .25rem .625rem;
-            border-radius: 9999px;
+            border-radius: 0;
           }
           h1 {
             font-size: clamp(1.75rem, 2.4vw + 1rem, 2.5rem);
@@ -70,7 +70,7 @@
           .lede { color: var(--muted); margin: 0 0 1.5rem; max-width: 48rem; }
           .notice {
             background: var(--card); border: 1px solid var(--border);
-            border-radius: .5rem; padding: 1rem 1.125rem;
+            border-radius: 0; padding: 1rem 1.125rem;
             display: flex; gap: .875rem; align-items: flex-start;
             margin-bottom: 2rem;
           }
@@ -78,12 +78,12 @@
           .notice p { margin: .25rem 0 0; color: var(--muted); font-size: .9rem; }
           .notice code {
             background: var(--code-bg); padding: .1rem .35rem;
-            border-radius: .25rem; font-size: .85em;
+            border-radius: 0; font-size: .85em;
           }
           .meta { color: var(--muted); font-size: .85rem; margin: 0 0 1rem; }
           .table-card {
             background: var(--card); border: 1px solid var(--border);
-            border-radius: .5rem; overflow: hidden;
+            border-radius: 0; overflow: hidden;
           }
           table { width: 100%; border-collapse: collapse; }
           thead th {

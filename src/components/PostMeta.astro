@@ -14,7 +14,7 @@ const { post, locale, readingMinutes } = Astro.props;
 const t = useTranslations(locale);
 ---
 
-<div class="text-base-content/70 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+<div class="text-base-content flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
   <span class="flex items-center gap-1">
     <Icon name="lucide:clock" width={14} height={14} />
     <time datetime={isoDate(post.data.pubDate)}>
