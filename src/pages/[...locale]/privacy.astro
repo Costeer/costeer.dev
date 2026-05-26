@@ -13,6 +13,7 @@ const { locale } = Astro.props;
 const entry = await getEntry('pages', `${locale}/privacy`);
 if (!entry) return Astro.rewrite('/404');
 const { Content } = await render(entry);
+const body = entry.body ?? '';
 ---
 
 <PageLayout
@@ -20,6 +21,7 @@ const { Content } = await render(entry);
   description={entry.data.description ?? SITE.description}
   locale={locale}
   math={entry.data.math}
+  body={body}
 >
   <Content />
 </PageLayout>

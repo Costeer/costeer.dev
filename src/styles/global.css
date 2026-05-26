@@ -1,127 +1,41 @@
 /*
- * Tailwind CSS v4 + daisyUI v5 entry point.
- * See https://daisyui.com/docs/install/ for the canonical install steps.
+ * Tailwind CSS v4 entry point.
  *
- * Theme palette closely matches the original Chirpy theme
- * (https://chirpy.cotes.page/) — light grey page background, purple
- * primary, white cards, generous typography.
+ * Local tokens, primitives, and layout styles for the publishing interface.
  */
 
 @import 'tailwindcss';
-@plugin 'daisyui' {
-  themes: false; /* we provide our own themes below */
-  logs: false;
-}
 
-/* ---------- Alert plugin safelist ---------- */
-/* Force Tailwind to emit classes used by the remark-alert plugin, which
-   generates raw HTML that the content scanner may not see at build time. */
-@source inline('alert-{info,success,warning,error,soft,outline,dash,vertical,horizontal}');
-@source inline('sm:alert-horizontal');
-
-/* ---------- Chirpy LIGHT ---------- */
-@plugin 'daisyui/theme' {
-  name: 'chirpy-light';
-  default: true;
-  prefersdark: false;
-  color-scheme: light;
-
-  /* Page bg / cards / dividers / body text */
-  --color-base-100: oklch(100% 0 0); /* card bg (white)         */
-  --color-base-200: oklch(97% 0.0015 264); /* page bg #f6f7f8         */
-  --color-base-300: oklch(91% 0.0025 264); /* dividers #e8e8e8        */
-  --color-base-content: oklch(20% 0.012 264); /* near-black text         */
-
-  /* Purple primary */
+/* ---------- Chirpy-specific tokens ---------- */
+@theme {
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(97% 0.0015 264);
+  --color-base-300: oklch(91% 0.0025 264);
+  --color-base-content: oklch(20% 0.012 264);
   --color-primary: oklch(50% 0.18 305);
   --color-primary-content: oklch(99% 0.003 305);
-
   --color-secondary: oklch(70% 0.11 200);
   --color-secondary-content: oklch(15% 0.02 264);
-
-  --color-accent: oklch(76% 0.135 75);
-  --color-accent-content: oklch(20% 0.02 75);
-
+  --color-accent: oklch(64% 0.13 195);
+  --color-accent-content: oklch(14% 0.018 195);
   --color-neutral: oklch(35% 0.01 264);
   --color-neutral-content: oklch(98% 0.003 264);
-
   --color-info: oklch(70% 0.13 230);
   --color-info-content: oklch(15% 0.02 230);
-
   --color-success: oklch(72% 0.15 145);
   --color-success-content: oklch(15% 0.02 145);
-
   --color-warning: oklch(80% 0.15 80);
   --color-warning-content: oklch(20% 0.02 80);
-
   --color-error: oklch(60% 0.22 27);
   --color-error-content: oklch(99% 0.005 27);
 
-  --radius-selector: 0px;
-  --radius-field: 0px;
-  --radius-box: 0px;
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
-  --border: 1px;
-  --depth: 0;
-  --noise: 0;
-}
-
-/* ---------- Chirpy DARK ---------- */
-@plugin 'daisyui/theme' {
-  name: 'chirpy-dark';
-  default: false;
-  prefersdark: true;
-  color-scheme: dark;
-
-  /* Chirpy dark uses #1b1b1e for the page and #1e1e1f for cards */
-  --color-base-100: oklch(22% 0.005 264);
-  --color-base-200: oklch(20% 0.005 264);
-  --color-base-300: oklch(28% 0.008 264);
-  --color-base-content: oklch(86% 0.01 264);
-
-  /* Lighter purple for dark mode contrast */
-  --color-primary: oklch(74% 0.14 305);
-  --color-primary-content: oklch(15% 0.015 305);
-
-  --color-secondary: oklch(75% 0.09 200);
-  --color-secondary-content: oklch(15% 0.015 264);
-
-  --color-accent: oklch(80% 0.13 75);
-  --color-accent-content: oklch(15% 0.015 75);
-
-  --color-neutral: oklch(28% 0.01 264);
-  --color-neutral-content: oklch(95% 0.005 264);
-
-  --color-info: oklch(72% 0.12 230);
-  --color-info-content: oklch(15% 0.015 230);
-
-  --color-success: oklch(72% 0.14 145);
-  --color-success-content: oklch(15% 0.015 145);
-
-  --color-warning: oklch(80% 0.15 80);
-  --color-warning-content: oklch(15% 0.015 80);
-
-  --color-error: oklch(72% 0.18 27);
-  --color-error-content: oklch(15% 0.015 27);
-
-  --radius-selector: 0px;
-  --radius-field: 0px;
-  --radius-box: 0px;
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
-  --border: 1px;
-  --depth: 0;
-  --noise: 0;
-}
-
-/* ---------- Chirpy-specific tokens (non-daisyUI) ---------- */
-@theme {
   /* Chirpy sidebar gradient */
   --color-sidebar-from: oklch(99% 0 0);
   --color-sidebar-to: oklch(95% 0.005 264);
   --color-sidebar-text: oklch(40% 0.01 264);
   --color-sidebar-muted: oklch(50% 0.012 264);
+  --color-sidebar-action: oklch(56% 0.155 248);
+  --color-sidebar-action-content: oklch(99% 0.003 248);
 
   /* Sidebar/panel widths — matches Chirpy ($sidebar-width 260px, $sidebar-width-large 300px) */
   --width-sidebar: 16.25rem; /* 260px */
@@ -139,26 +53,84 @@
   --font-mono: var(--font-jetbrains-mono, ui-monospace, monospace);
 }
 
+[data-theme='chirpy-light'] {
+  color-scheme: light;
+}
+
 [data-theme='chirpy-dark'] {
-  --color-sidebar-from: oklch(20% 0.005 264);
-  --color-sidebar-to: oklch(17% 0.005 264);
-  --color-sidebar-text: oklch(75% 0.01 264);
-  --color-sidebar-muted: oklch(55% 0.012 264);
+  color-scheme: dark;
+  --color-base-100: oklch(30% 0.02 278);
+  --color-base-200: oklch(22.5% 0.017 278);
+  --color-base-300: oklch(42% 0.026 278);
+  --color-base-content: oklch(91% 0.018 278);
+  --color-primary: oklch(80% 0.115 316);
+  --color-primary-content: oklch(18% 0.026 316);
+  --color-secondary: oklch(80% 0.075 210);
+  --color-secondary-content: oklch(18% 0.022 210);
+  --color-accent: oklch(83% 0.11 84);
+  --color-accent-content: oklch(20% 0.025 84);
+  --color-neutral: oklch(35% 0.018 278);
+  --color-neutral-content: oklch(92% 0.018 278);
+  --color-info: oklch(77% 0.095 232);
+  --color-info-content: oklch(18% 0.022 232);
+  --color-success: oklch(80% 0.11 148);
+  --color-success-content: oklch(18% 0.022 148);
+  --color-warning: oklch(84% 0.12 84);
+  --color-warning-content: oklch(20% 0.025 84);
+  --color-error: oklch(75% 0.13 25);
+  --color-error-content: oklch(18% 0.025 25);
+  --color-sidebar-from: oklch(18.5% 0.016 278);
+  --color-sidebar-to: oklch(21% 0.018 278);
+  --color-sidebar-text: oklch(83% 0.019 278);
+  --color-sidebar-muted: oklch(67% 0.016 278);
+  --color-sidebar-action: oklch(75% 0.12 248);
+  --color-sidebar-action-content: oklch(18% 0.03 248);
 }
 
 /* ---------- Base layer ---------- */
 @layer base {
   html {
+    scrollbar-width: none;
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
     text-rendering: optimizeLegibility;
   }
+  html[data-route-scroll-instant='true'] {
+    scroll-behavior: auto;
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
 
   body {
     @apply bg-base-200 text-base-content min-h-screen antialiased;
+    scrollbar-width: none;
     font-family: var(--font-sans);
     font-size: 1rem;
     line-height: 1.65;
+  }
+
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  .lenis:not(.lenis-autoToggle).lenis-stopped {
+    overflow: clip;
+  }
+
+  .lenis [data-lenis-prevent],
+  .lenis [data-lenis-prevent-wheel],
+  .lenis [data-lenis-prevent-touch],
+  .lenis [data-lenis-prevent-vertical],
+  .lenis [data-lenis-prevent-horizontal] {
+    overscroll-behavior: contain;
+  }
+
+  .lenis.lenis-smooth iframe {
+    pointer-events: none;
   }
 
   :focus-visible {
@@ -209,44 +181,6 @@
     animation: none;
   }
 
-  /* ---------- Astro View Transitions (subtle fade + lift) ---------- */
-  /* Astro tags the whole page with view-transition-name: root by default.
-     We override the default slide animation with a soft fade combined
-     with a tiny upward translation so navigations feel smooth but clearly
-     animated. */
-  @keyframes chirpy-fade-in {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  @keyframes chirpy-fade-out {
-    from {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    to {
-      opacity: 0;
-      transform: translateY(-6px);
-    }
-  }
-  ::view-transition-old(root) {
-    animation: chirpy-fade-out 280ms cubic-bezier(0.4, 0, 0.2, 1) both;
-  }
-  ::view-transition-new(root) {
-    animation: chirpy-fade-in 360ms cubic-bezier(0.4, 0, 0.2, 1) both;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    ::view-transition-old(root),
-    ::view-transition-new(root) {
-      animation: none;
-    }
-  }
-
   /* Anchored headings (rehype-autolink-headings, behavior:"wrap") */
   .heading-anchor {
     @apply text-inherit no-underline;
@@ -270,6 +204,325 @@
   }
 }
 
+/* ---------- Local UI primitives ---------- */
+@layer components {
+  .btn {
+    min-height: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 1px solid transparent;
+    border-radius: 0;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      color 150ms ease,
+      background-color 150ms ease,
+      border-color 150ms ease;
+  }
+  .btn-sm {
+    min-height: 2rem;
+    padding: 0.375rem 0.625rem;
+    font-size: 0.8125rem;
+  }
+  .btn-primary {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-primary-content);
+  }
+  .btn-primary:hover {
+    background: color-mix(in oklab, var(--color-primary) 88%, var(--color-base-content));
+  }
+  .btn-ghost {
+    border-color: transparent;
+    background: transparent;
+    color: var(--color-base-content);
+  }
+  .btn-ghost:hover {
+    border-color: var(--color-base-300);
+    background: var(--color-base-200);
+    color: var(--color-primary);
+  }
+
+  .select {
+    min-height: 2.25rem;
+    border-radius: 0;
+    background: var(--color-base-100);
+    color: var(--color-base-content);
+    padding: 0.375rem 0.625rem;
+  }
+  .select-bordered {
+    border: 1px solid var(--color-base-300);
+  }
+  .select-sm {
+    min-height: 2rem;
+    font-size: 0.875rem;
+  }
+
+  .toggle {
+    --toggle-size: 1.25rem;
+    --toggle-travel: 1.1rem;
+    appearance: none;
+    width: 2.5rem;
+    height: 1.35rem;
+    display: inline-grid;
+    align-items: center;
+    flex-shrink: 0;
+    border: 1px solid var(--color-base-300);
+    border-radius: 9999px;
+    background: var(--color-base-300);
+    padding: 0.125rem;
+    cursor: pointer;
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease;
+  }
+  .toggle::before {
+    content: '';
+    width: var(--toggle-size);
+    height: var(--toggle-size);
+    border-radius: 9999px;
+    background: var(--color-base-100);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.22);
+    transition: transform 150ms ease;
+  }
+  .toggle:checked {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+  }
+  .toggle:checked::before {
+    transform: translateX(var(--toggle-travel));
+  }
+  .toggle-sm {
+    --toggle-size: 0.95rem;
+    --toggle-travel: 1.15rem;
+    width: 2.5rem;
+    height: 1.35rem;
+  }
+
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  .dropdown > .dropdown-content {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    display: none !important;
+  }
+  .dropdown-end > .dropdown-content {
+    right: 0;
+    left: auto;
+  }
+  .dropdown.is-open > .dropdown-content {
+    display: flex !important;
+  }
+  .menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+  .menu li > a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    color: var(--color-base-content);
+    text-decoration: none;
+  }
+  .menu li > a:hover,
+  .menu li > a:focus-visible {
+    background: var(--color-base-200);
+    color: var(--color-primary);
+  }
+  .menu-title {
+    font-weight: 700;
+  }
+
+  .badge {
+    display: inline-flex;
+    min-height: 1.25rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-base-300);
+    border-radius: 0;
+    padding: 0.125rem 0.375rem;
+    font-size: 0.6875rem;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+  .badge-sm {
+    min-height: 1rem;
+    padding-inline: 0.3rem;
+    font-size: 0.625rem;
+  }
+  .badge-primary {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-primary-content);
+  }
+  .badge-ghost {
+    background: var(--color-base-200);
+    color: var(--color-base-content);
+  }
+
+  .kbd {
+    min-width: 1.45rem;
+    min-height: 1.35rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-base-300);
+    border-radius: 0;
+    background: var(--color-base-100);
+    color: var(--color-base-content);
+    padding-inline: 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1;
+  }
+  .kbd-xs {
+    min-width: 1.2rem;
+    min-height: 1.1rem;
+    font-size: 0.65rem;
+  }
+
+  .modal {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+  }
+  .modal::backdrop {
+    background: rgb(0 0 0 / 0.45);
+  }
+  [data-theme='chirpy-dark'] .modal::backdrop {
+    background: color-mix(in oklab, var(--color-base-200) 78%, transparent);
+  }
+  .modal[open] {
+    display: grid;
+    place-items: start center;
+  }
+  .modal-box {
+    position: relative;
+    z-index: 1;
+    margin: 1rem;
+  }
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    display: block;
+    cursor: pointer;
+  }
+  .modal-backdrop button {
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    color: transparent;
+  }
+  @media (min-width: 640px) {
+    .sm\:modal-middle[open] {
+      place-items: center;
+    }
+  }
+
+  .loading {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    color: currentColor;
+  }
+  .loading-spinner {
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 9999px;
+    animation: loading-spin 700ms linear infinite;
+  }
+  .loading-xs {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-width: 1.5px;
+  }
+  @keyframes loading-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .alert {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 0.75rem;
+    border: 1px solid var(--alert-border, var(--color-base-300));
+    border-radius: 0;
+    background: var(--alert-bg, var(--color-base-100));
+    color: var(--color-base-content);
+    padding: 1rem;
+  }
+  [data-theme='chirpy-dark'] .alert {
+    background: var(
+      --alert-bg,
+      color-mix(in oklab, var(--color-base-100) 88%, var(--color-base-200))
+    );
+  }
+  .alert svg {
+    color: var(--alert-icon, var(--color-primary));
+  }
+  .alert-info {
+    --alert-border: var(--color-info);
+    --alert-bg: color-mix(in oklab, var(--color-info) 12%, var(--color-base-100));
+    --alert-icon: var(--color-info);
+  }
+  .alert-success {
+    --alert-border: var(--color-success);
+    --alert-bg: color-mix(in oklab, var(--color-success) 12%, var(--color-base-100));
+    --alert-icon: var(--color-success);
+  }
+  .alert-warning {
+    --alert-border: var(--color-warning);
+    --alert-bg: color-mix(in oklab, var(--color-warning) 16%, var(--color-base-100));
+    --alert-icon: var(--color-warning);
+  }
+  .alert-error {
+    --alert-border: var(--color-error);
+    --alert-bg: color-mix(in oklab, var(--color-error) 12%, var(--color-base-100));
+    --alert-icon: var(--color-error);
+  }
+  .alert-soft {
+    border-color: color-mix(in oklab, var(--alert-border, var(--color-base-300)) 50%, transparent);
+  }
+  .alert-outline {
+    background: transparent;
+  }
+  .alert-dash {
+    border-style: dashed;
+  }
+  .alert-vertical {
+    grid-template-columns: 1fr;
+  }
+  .alert-horizontal {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  @media (min-width: 640px) {
+    .sm\:alert-horizontal {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+  }
+}
+
 /* ---------- Layout chrome ---------- */
 @layer components {
   /* Left sidebar — always pinned to the extreme left of the viewport. */
@@ -279,6 +532,9 @@
     background: linear-gradient(180deg, var(--color-sidebar-from) 0%, var(--color-sidebar-to) 100%);
     color: var(--color-sidebar-text);
     transition: transform 0.3s ease;
+  }
+  [data-theme='chirpy-dark'] .chirpy-sidebar {
+    border-color: color-mix(in oklab, var(--color-sidebar-text) 18%, transparent);
   }
   @media (max-width: 1023px) {
     .chirpy-sidebar {
@@ -324,7 +580,7 @@
      post cards + panel + footer) inside the area to the right of the
      sidebar. Caps at Chirpy's $main-content-max-width: 1250px. */
   .chirpy-shell {
-    @apply mx-auto flex w-full flex-1 flex-col;
+    @apply mx-auto flex w-full min-w-0 flex-1 flex-col;
     max-width: 1250px;
   }
 
@@ -332,7 +588,27 @@
      so the controls aren't flush against the browser chrome on either
      mobile or desktop. */
   .chirpy-topbar {
-    @apply bg-base-200/80 supports-backdrop-filter:bg-base-200/70 sticky top-0 z-30 flex min-h-(--height-topbar) items-center justify-between gap-3 py-2 backdrop-blur sm:py-3;
+    @apply bg-base-200 sticky top-0 z-40 flex min-h-(--height-topbar) items-center justify-between gap-3 py-2 sm:py-3;
+    isolation: isolate;
+    position: sticky;
+  }
+  .chirpy-topbar::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline: -0.75rem;
+    background: var(--color-base-200);
+    z-index: -1;
+    pointer-events: none;
+  }
+  [data-theme='chirpy-dark'] .chirpy-topbar::before {
+    border-bottom: 1px solid color-mix(in oklab, var(--color-base-content) 8%, transparent);
+    background: color-mix(in oklab, var(--color-base-200) 92%, transparent);
+  }
+  @media (min-width: 640px) {
+    .chirpy-topbar::before {
+      inset-inline: -1rem;
+    }
   }
 
   /* Right rail wrapper. Holds the global Panel widget followed by an
@@ -361,7 +637,7 @@
      panel rail so the search pill aligns vertically over the panel column.
      Below xl, the right rail is hidden so the slot shrinks to fit. */
   .chirpy-topbar__search {
-    @apply flex shrink-0 items-center justify-start gap-2 px-1;
+    @apply flex shrink-0 items-center justify-start gap-2;
   }
   @media (min-width: 1280px) {
     .chirpy-topbar__search {
@@ -390,6 +666,24 @@
     @apply block text-sm;
   }
 
+  .chirpy-page-header {
+    background: var(--color-base-200);
+    isolation: isolate;
+    position: relative;
+    z-index: 10;
+    padding-bottom: 0.75rem;
+  }
+  .chirpy-page-header::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    bottom: -0.75rem;
+    height: 0.75rem;
+    background: var(--color-base-200);
+    pointer-events: none;
+    z-index: -1;
+  }
+
   /* Subtle left rail for aside items (Recently Updated, TOC, etc.).
      Each item gets a faint left border that turns primary on hover/active. */
   .chirpy-aside-list {
@@ -409,308 +703,73 @@
     @apply text-primary font-semibold;
     border-left-color: var(--color-primary);
   }
-
-  /* Post card — horizontal Chirpy card */
-  .chirpy-card {
-    @apply border-base-300 bg-base-100 mb-5 overflow-hidden rounded-none border transition hover:-translate-y-0.5 hover:shadow-[0_2px_4px_-1px_rgba(0,0,0,0.05),0_4px_12px_rgba(0,0,0,0.08)];
-  }
-  .chirpy-card-float-in {
-    animation: chirpy-card-float-in 260ms ease-out both;
-    animation-delay: var(--chirpy-card-delay, 0ms);
-  }
-  .chirpy-card-lazy {
-    content-visibility: auto;
-    contain-intrinsic-size: 220px;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .chirpy-card-float-in {
-      animation: none;
-    }
-  }
-  @keyframes chirpy-card-float-in {
-    from {
-      opacity: 0;
-      transform: translateY(0.75rem);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  .chirpy-card-link {
-    @apply grid grid-cols-1 gap-0 md:grid-cols-12;
-  }
-  /* Image cards can be fixed-size (default Chirpy behavior) or dynamic
-     based on `SITE.dynamicPostCardHeight`. */
-  .chirpy-card-link.has-image {
-    @apply md:grid-cols-12;
-  }
-
-  .chirpy-card-body {
-    @apply flex min-w-0 flex-col p-4 sm:p-5 md:col-span-7 md:p-6;
-  }
-  .chirpy-card-body.full {
-    @apply md:col-span-12;
-  }
-  .chirpy-card-link.no-image .chirpy-card-body {
-    @apply md:p-5;
-  }
-  /* Title and description gain line-clamps so a very long title (or a
-     verbose description) cannot push the card past the fixed height. */
-  .chirpy-card-title {
-    @apply text-base-content mt-0 text-2xl leading-snug font-bold tracking-tight sm:text-[1.55rem];
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .chirpy-card-title.compact {
-    @apply md:text-[1.4rem];
-  }
-  @media (min-width: 768px) {
-    .chirpy-card-link.has-image.dynamic-size .chirpy-card-title {
-      display: block;
-      -webkit-line-clamp: unset;
-      line-clamp: unset;
-      -webkit-box-orient: unset;
-      overflow: visible;
-    }
-    .chirpy-card-link.has-image.dynamic-size .chirpy-card-body > p {
-      -webkit-line-clamp: unset;
-      line-clamp: unset;
-      overflow: visible;
-      display: block;
-    }
-  }
-  .chirpy-card-image-wrap {
-    @apply order-first overflow-hidden md:order-last md:col-span-5 md:flex md:flex-col;
-  }
-  .chirpy-card-image {
-    @apply h-44 w-full object-cover md:min-h-0 md:flex-1 md:rounded-none;
-  }
 }
 
-/* ---------- Prose tuning for the post body ---------- */
+/* ---------- Sidebar profile + nav ---------- */
 @layer components {
-  .prose-chirpy {
-    @apply text-base-content;
-    line-height: 1.75;
-    font-size: 1.0625rem;
+  .sidebar-profile-card {
+    @apply mb-5 overflow-hidden rounded-none border;
+    border-color: color-mix(in oklab, var(--color-sidebar-text) 20%, transparent);
+    background: color-mix(in oklab, var(--color-sidebar-to) 72%, var(--color-base-100));
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-sidebar-text) 6%, transparent);
+  }
+  [data-theme='chirpy-dark'] .sidebar-profile-card {
+    background: color-mix(in oklab, var(--color-sidebar-to) 84%, var(--color-base-100));
+  }
+  .sidebar-profile-avatar {
+    @apply mx-4 mt-1 mb-3 block aspect-square overflow-hidden rounded-none transition;
+  }
+  .sidebar-profile-card a:hover .sidebar-profile-avatar {
+    transform: scale(1.01);
+  }
+  .sidebar-profile-name {
+    @apply block px-4 pb-3 text-center text-sm font-semibold;
+    color: color-mix(in oklab, var(--color-sidebar-text) 78%, var(--color-base-content));
+  }
+  .sidebar-profile-stats {
+    @apply flex items-center gap-1.5 border-t px-4 py-3 text-sm font-semibold;
+    border-color: color-mix(in oklab, var(--color-sidebar-text) 14%, transparent);
+    color: color-mix(in oklab, var(--color-sidebar-text) 78%, var(--color-base-content));
+  }
+  .sidebar-profile-stats strong {
+    @apply font-bold;
+    color: var(--color-base-content);
+  }
+  .sidebar-profile-more {
+    @apply ml-auto flex h-9 w-9 items-center justify-center rounded-none border transition;
+    border-color: color-mix(in oklab, var(--color-sidebar-text) 22%, transparent);
+    background: transparent;
+  }
+  .sidebar-profile-more:hover {
+    color: var(--color-primary);
+    background: color-mix(in oklab, var(--color-primary) 10%, transparent);
+  }
+  .sidebar-profile-details > div {
+    @apply flex items-center gap-0 border-t px-4 py-3 text-sm font-medium;
+    border-color: color-mix(in oklab, var(--color-sidebar-text) 14%, transparent);
+    color: color-mix(in oklab, var(--color-sidebar-text) 82%, var(--color-base-content));
+  }
+  .sidebar-profile-details dt {
+    @apply shrink-0;
+  }
+  .sidebar-profile-details dd {
+    @apply min-w-0 flex-1 leading-snug;
+  }
+  .sidebar-profile-details a {
+    @apply break-all transition;
+  }
+  .sidebar-profile-details .sidebar-profile-bio {
+    @apply block text-base leading-snug font-normal;
+  }
+  .sidebar-profile-details .sidebar-profile-bio dd {
+    @apply flex-none;
   }
 
-  .prose-chirpy h1,
-  .prose-chirpy h2,
-  .prose-chirpy h3,
-  .prose-chirpy h4 {
-    @apply text-base-content scroll-mt-24 font-semibold tracking-tight;
-  }
-  .prose-chirpy h1 {
-    @apply mt-8 mb-4 text-3xl;
-  }
-  .prose-chirpy h2 {
-    @apply border-base-300 mt-10 mb-4 border-b pb-2 text-2xl;
-  }
-  .prose-chirpy h3 {
-    @apply mt-8 mb-3 text-xl;
-  }
-  .prose-chirpy h4 {
-    @apply mt-6 mb-2 text-lg;
-  }
-  .prose-chirpy p {
-    @apply my-4;
-  }
-  .prose-chirpy a:not(.heading-anchor) {
-    @apply text-primary decoration-primary/30 hover:decoration-primary underline underline-offset-2;
-  }
-  .prose-chirpy a.heading-anchor {
-    @apply text-inherit no-underline;
-  }
-  .prose-chirpy ul {
-    @apply my-4 list-disc pl-6;
-  }
-  .prose-chirpy ol {
-    @apply my-4 list-decimal pl-6;
-  }
-  .prose-chirpy blockquote {
-    @apply border-primary bg-base-200 text-base-content my-6 rounded-none border-l-4 px-4 py-2 italic;
-  }
-  .prose-chirpy hr {
-    @apply border-base-300 my-10;
-  }
-  .prose-chirpy code:not(pre code) {
-    @apply bg-base-200 text-accent rounded-none px-1.5 py-0.5 font-mono text-[0.92em];
-    font-family: var(--font-mono);
-  }
-  .prose-chirpy pre {
-    @apply border-base-300 relative my-6 overflow-x-auto rounded-none border p-4 text-sm leading-relaxed;
-    font-family: var(--font-mono);
-  }
-  .prose-chirpy pre code {
-    @apply bg-transparent p-0;
-  }
-  .prose-chirpy img {
-    @apply border-base-300 mx-auto my-6 rounded-none border;
-    max-width: 100%;
-    height: auto;
-  }
-
-  /* Figures — mirror the hero image treatment so the caption feels
-     visually attached to the image rather than floating below. */
-  .prose-chirpy figure {
-    @apply my-6;
-  }
-  .prose-chirpy figure > img,
-  .prose-chirpy figure > picture > img {
-    @apply mx-auto rounded-none border-0;
-    margin-top: 0;
-    margin-bottom: 0;
-    max-width: 100%;
-    height: auto;
-    display: block;
-  }
-  .prose-chirpy figcaption {
-    @apply text-base-content mt-2 text-center text-xs italic;
-  }
-
-  /* Video embeds — responsive 16:9 iframe container */
-  .video-embed__frame {
-    @apply relative overflow-hidden rounded-none;
-    padding-bottom: 56.25%; /* 16:9 aspect ratio */
-    background: var(--color-sidebar-to);
-  }
-  .video-embed__frame > iframe {
-    @apply absolute inset-0 h-full w-full;
-    border: 0;
-  }
-
-  /* Hero image — contained within content width, using the sidebar's
-     subtle gradient as a placeholder background. */
-  .post-hero {
-    @apply mx-auto;
-    max-width: 100%;
-  }
-  .post-hero__frame {
-    @apply relative overflow-hidden rounded-none;
-    background: var(--color-sidebar-to);
-  }
-  .post-hero__img {
-    @apply block w-full;
-    height: auto;
-    object-fit: cover;
-  }
-  .prose-chirpy table {
-    @apply my-6 w-full border-collapse text-left text-sm;
-  }
-  .prose-chirpy table th,
-  .prose-chirpy table td {
-    @apply border-base-300 border px-3 py-2;
-  }
-  .prose-chirpy table thead {
-    @apply bg-base-200;
-  }
-
-  /* Callouts (.callout.callout-info / -success / -warning / -error) */
-  .callout {
-    @apply my-6 rounded-none border-l-4 px-4 py-3;
-  }
-  .callout-info {
-    @apply border-info bg-info/10;
-  }
-  .callout-success {
-    @apply border-success bg-success/10;
-  }
-  .callout-warning {
-    @apply border-warning bg-warning/10;
-  }
-  .callout-error {
-    @apply border-error bg-error/10;
-  }
-
-  /* Alert plugin: only add space when alerts are stacked together. */
-  .prose-chirpy div[role='alert'] + div[role='alert'] {
-    @apply mt-4;
-  }
-}
-
-/* ---------- Expressive Code -----------------------------
- * Code blocks are rendered by `astro-expressive-code`. It emits its own
- * scoped styles (`.expressive-code`) and drives the active theme via the
- * `[data-theme='chirpy-light' | 'chirpy-dark']` attribute on <html>
- * (configured via `themeCssSelector` in astro.config.mjs).
- *
- * The few overrides below just make the code-block frames sit nicely
- * inside our prose container.
- */
-@layer components {
-  .prose-chirpy .expressive-code {
-    @apply my-6;
-  }
-  .prose-chirpy .expressive-code pre {
-    @apply bg-transparent p-0;
-  }
-  .prose-chirpy :not(pre) > code {
-    @apply text-primary bg-base-200 rounded-none px-1.5 py-0.5 text-[0.9em] font-medium;
-  }
-}
-
-/* ---------- TOC sticky highlight (uses chirpy-aside rail) ---------- */
-@layer components {
-  .toc ol {
-    border-left: 1px solid color-mix(in oklab, var(--color-base-content) 10%, transparent);
-  }
-  .toc a {
-    @apply text-base-content block py-1 pr-2 pl-3 text-sm transition-colors;
-    margin-left: -1px;
-    border-left: 1px solid transparent;
-  }
-  .toc a:hover {
-    @apply text-primary;
-    border-left-color: var(--color-primary);
-  }
-  .toc a[data-active='true'] {
-    @apply text-primary font-semibold;
-    border-left-color: var(--color-primary);
-  }
-  .toc .toc-level-3 a {
-    @apply pl-6;
-  }
-  .toc .toc-level-4 a {
-    @apply pl-9;
-  }
-
-  /* Smart TOC: H3/H4 entries are hidden until their parent H2 is the
-     active section (set by the scroll-spy script via data-section-active).
-     H2 entries are always visible. */
-  .toc .toc-level-3,
-  .toc .toc-level-4 {
-    display: none;
-  }
-  .toc .toc-level-3[data-section-active='true'],
-  .toc .toc-level-4[data-section-active='true'] {
-    display: list-item;
-    animation: toc-fade-in 180ms ease-out;
-  }
-
-  @keyframes toc-fade-in {
-    from {
-      opacity: 0;
-      transform: translateY(-2px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-}
-
-/* ---------- Sidebar nav ---------- */
-@layer components {
   .chirpy-nav {
     @apply flex w-full flex-col gap-0.5;
   }
   .chirpy-nav-link {
-    @apply relative flex w-full items-center gap-3 rounded-none px-3 py-2.5 text-[0.78rem] font-bold tracking-[0.07em] uppercase;
+    @apply relative flex w-full cursor-pointer items-center gap-3 rounded-none px-3 py-2.5 text-[0.78rem] font-bold tracking-[0.07em] uppercase;
     color: var(--color-sidebar-text);
     transition:
       color 0.2s ease,
@@ -733,16 +792,144 @@
   }
 
   .chirpy-social {
-    @apply hover:text-primary flex h-9 w-9 items-center justify-center rounded-none transition;
+    @apply flex h-9 w-9 cursor-pointer items-center justify-center rounded-none transition;
     color: var(--color-sidebar-text);
     background: color-mix(in oklab, var(--color-sidebar-text) 10%, transparent);
   }
   .chirpy-social:hover {
-    background: color-mix(in oklab, var(--color-primary) 14%, transparent);
+    color: var(--color-sidebar-action);
+    background: color-mix(in oklab, var(--color-sidebar-action) 16%, transparent);
   }
+  [data-theme-icon] {
+    display: none;
+  }
+  [data-theme='chirpy-light'] [data-theme-icon='dark'],
+  [data-theme='chirpy-dark'] [data-theme-icon='light'] {
+    display: inline-flex;
+  }
+
+  .footer-notice {
+    --footer-intensity: 0.62;
+    width: 100%;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-top: 1px solid color-mix(in oklab, var(--color-sidebar-text) 14%, transparent);
+  }
+  .footer-notice .chirpy-social {
+    width: 2.35rem;
+    height: 2.35rem;
+    color: var(--color-base-content);
+    background: var(--color-base-100);
+    border: 1px solid currentColor;
+  }
+  .footer-notice > .relative .chirpy-social {
+    color: var(--color-sidebar-action);
+    background: color-mix(
+      in oklab,
+      var(--color-sidebar-action) calc(12% + 18% * var(--footer-intensity)),
+      var(--color-base-100)
+    );
+  }
+  .footer-notice > button.chirpy-social:hover,
+  .footer-notice > button.chirpy-social:focus-visible,
+  .footer-notice > .relative .chirpy-social:hover,
+  .footer-notice > .relative .chirpy-social:focus-visible {
+    color: var(--color-sidebar-action-content);
+    background: var(--color-sidebar-action);
+  }
+  .footer-notice > a.chirpy-social {
+    --social-action: var(--color-sidebar-action);
+    --social-action-content: oklch(99% 0.003 277);
+    color: var(--social-action);
+    background: color-mix(
+      in oklab,
+      var(--social-action) calc(10% + 16% * var(--footer-intensity)),
+      var(--color-base-100)
+    );
+  }
+  .footer-notice > a.chirpy-social:nth-of-type(1) {
+    --social-action: oklch(55% 0.22 24);
+  }
+  .footer-notice > a.chirpy-social:nth-of-type(2) {
+    --social-action: oklch(68% 0.17 50);
+  }
+  .footer-notice > a.chirpy-social:nth-of-type(3) {
+    --social-action: oklch(64% 0.14 145);
+  }
+  .footer-notice > a.chirpy-social:nth-of-type(4) {
+    --social-action: oklch(56% 0.13 235);
+  }
+  .footer-notice > a.chirpy-social:nth-of-type(5) {
+    --social-action: oklch(54% 0.18 310);
+  }
+  .footer-notice > a.chirpy-social:nth-of-type(6) {
+    --social-action: oklch(57% 0.19 345);
+  }
+  .footer-notice > a.chirpy-social:hover,
+  .footer-notice > a.chirpy-social:focus-visible {
+    color: var(--social-action-content);
+    background: var(--social-action);
+  }
+  [data-theme='chirpy-dark'] .footer-notice .chirpy-social {
+    color: var(--color-base-content);
+    background: var(--color-base-100);
+    border-color: currentColor;
+  }
+  [data-theme='chirpy-dark'] .footer-notice > .relative .chirpy-social {
+    color: var(--color-sidebar-action);
+    background: color-mix(
+      in oklab,
+      var(--color-sidebar-action) calc(12% + 18% * var(--footer-intensity)),
+      var(--color-base-100)
+    );
+  }
+  [data-theme='chirpy-dark'] .footer-notice > button.chirpy-social:hover,
+  [data-theme='chirpy-dark'] .footer-notice > button.chirpy-social:focus-visible,
+  [data-theme='chirpy-dark'] .footer-notice > .relative .chirpy-social:hover,
+  [data-theme='chirpy-dark'] .footer-notice > .relative .chirpy-social:focus-visible {
+    color: var(--color-sidebar-action-content);
+    background: var(--color-sidebar-action);
+  }
+  [data-theme='chirpy-dark'] .footer-notice > a.chirpy-social {
+    --social-action-content: oklch(18% 0.025 277);
+    color: var(--social-action);
+    background: color-mix(
+      in oklab,
+      var(--social-action) calc(18% + 24% * var(--footer-intensity)),
+      var(--color-base-100)
+    );
+  }
+  [data-theme='chirpy-dark'] .footer-notice > a.chirpy-social:nth-of-type(1) {
+    --social-action: oklch(75% 0.13 25);
+  }
+  [data-theme='chirpy-dark'] .footer-notice > a.chirpy-social:nth-of-type(2) {
+    --social-action: oklch(80% 0.12 55);
+  }
+  [data-theme='chirpy-dark'] .footer-notice > a.chirpy-social:nth-of-type(3) {
+    --social-action: oklch(80% 0.11 148);
+  }
+  [data-theme='chirpy-dark'] .footer-notice > a.chirpy-social:nth-of-type(4) {
+    --social-action: oklch(80% 0.075 210);
+  }
+  [data-theme='chirpy-dark'] .footer-notice > a.chirpy-social:nth-of-type(5) {
+    --social-action: oklch(78% 0.105 316);
+  }
+  [data-theme='chirpy-dark'] .footer-notice > a.chirpy-social:nth-of-type(6) {
+    --social-action: oklch(78% 0.105 345);
+  }
+  [data-theme='chirpy-dark'] .footer-notice > a.chirpy-social:hover,
+  [data-theme='chirpy-dark'] .footer-notice > a.chirpy-social:focus-visible {
+    color: var(--social-action-content);
+    background: var(--social-action);
+  }
+
   .a11y-toggle-round {
-    /* Override the site-wide daisyUI radius tokens only for these switches. */
-    --radius-selector: 9999px;
+    /* Switches are the only intentionally rounded controls in this square UI. */
     border-radius: 9999px !important;
     overflow: hidden;
   }
@@ -759,44 +946,84 @@
     border-color: oklch(58% 0.18 var(--tag-hue));
     background: oklch(96% 0.045 var(--tag-hue));
     color: oklch(34% 0.18 var(--tag-hue));
-    @apply inline-flex items-center rounded-none border px-3 py-1 text-xs font-semibold transition;
+    @apply inline-flex items-center rounded-none border px-2 py-0.5 text-[0.68rem] font-semibold transition;
   }
   .post-tag:hover {
     background: oklch(58% 0.18 var(--tag-hue));
-    color: white;
+    color: oklch(99% 0.003 var(--tag-hue));
+  }
+  .post-tag--style {
+    --style-hue: 305;
+    --style-gradient-angle: 90deg;
+    --style-gradient-stop: 64%;
+    --style-gradient-drift: 12% 16%;
+    background:
+      radial-gradient(
+        circle at var(--style-gradient-drift),
+        oklch(92% 0.06 var(--style-hue)),
+        transparent 56%
+      ),
+      linear-gradient(
+        var(--style-gradient-angle),
+        oklch(96% 0.045 var(--style-hue)),
+        transparent var(--style-gradient-stop)
+      );
+    border-color: oklch(74% 0.085 var(--style-hue));
+    color: oklch(30% 0.115 var(--style-hue));
+    font-weight: 800;
+    letter-spacing: 0.015em;
+  }
+  .post-tag--style:hover {
+    background:
+      radial-gradient(
+        circle at var(--style-gradient-drift),
+        oklch(88% 0.08 var(--style-hue)),
+        transparent 58%
+      ),
+      linear-gradient(
+        var(--style-gradient-angle),
+        oklch(93% 0.065 var(--style-hue)),
+        transparent var(--style-gradient-stop)
+      );
+    color: oklch(25% 0.13 var(--style-hue));
   }
   [data-theme='chirpy-dark'] .post-tag {
     border-color: oklch(72% 0.16 var(--tag-hue));
-    background: oklch(28% 0.06 var(--tag-hue));
+    background: color-mix(in oklch, oklch(35% 0.065 var(--tag-hue)) 56%, var(--color-base-100));
     color: oklch(88% 0.08 var(--tag-hue));
   }
   [data-theme='chirpy-dark'] .post-tag:hover {
     background: oklch(72% 0.16 var(--tag-hue));
     color: oklch(14% 0.04 var(--tag-hue));
   }
-  .post-tag:nth-of-type(6n + 1),
-  li:nth-of-type(6n + 1) > .post-tag {
-    --tag-hue: 285;
+  [data-theme='chirpy-dark'] .post-tag--style {
+    background:
+      radial-gradient(
+        circle at var(--style-gradient-drift),
+        color-mix(in oklch, oklch(42% 0.095 var(--style-hue)) 62%, var(--color-base-100)),
+        transparent 56%
+      ),
+      linear-gradient(
+        var(--style-gradient-angle),
+        color-mix(in oklch, oklch(36% 0.07 var(--style-hue)) 50%, var(--color-base-100)),
+        transparent var(--style-gradient-stop)
+      );
+    border-color: oklch(64% 0.09 var(--style-hue));
+    color: oklch(90% 0.045 var(--style-hue));
   }
-  .post-tag:nth-of-type(6n + 2),
-  li:nth-of-type(6n + 2) > .post-tag {
-    --tag-hue: 330;
-  }
-  .post-tag:nth-of-type(6n + 3),
-  li:nth-of-type(6n + 3) > .post-tag {
-    --tag-hue: 220;
-  }
-  .post-tag:nth-of-type(6n + 4),
-  li:nth-of-type(6n + 4) > .post-tag {
-    --tag-hue: 155;
-  }
-  .post-tag:nth-of-type(6n + 5),
-  li:nth-of-type(6n + 5) > .post-tag {
-    --tag-hue: 45;
-  }
-  .post-tag:nth-of-type(6n),
-  li:nth-of-type(6n) > .post-tag {
-    --tag-hue: 20;
+  [data-theme='chirpy-dark'] .post-tag--style:hover {
+    background:
+      radial-gradient(
+        circle at var(--style-gradient-drift),
+        color-mix(in oklch, oklch(46% 0.11 var(--style-hue)) 68%, var(--color-base-100)),
+        transparent 58%
+      ),
+      linear-gradient(
+        var(--style-gradient-angle),
+        color-mix(in oklch, oklch(40% 0.08 var(--style-hue)) 56%, var(--color-base-100)),
+        transparent var(--style-gradient-stop)
+      );
+    color: oklch(94% 0.05 var(--style-hue));
   }
 }
 
@@ -804,6 +1031,14 @@
 @layer components {
   .search-pill {
     @apply border-base-300 bg-base-100 text-base-content hover:text-base-content hover:border-base-content inline-flex h-9 items-center gap-2 rounded-none border pr-1.5 pl-3 text-sm transition;
+  }
+  [data-theme='chirpy-dark'] .search-pill {
+    background: color-mix(in oklab, var(--color-base-100) 88%, var(--color-base-200));
+    border-color: color-mix(in oklab, var(--color-base-content) 18%, var(--color-base-300));
+  }
+  [data-theme='chirpy-dark'] .search-pill:hover {
+    background: color-mix(in oklab, var(--color-primary) 10%, var(--color-base-100));
+    border-color: color-mix(in oklab, var(--color-primary) 72%, var(--color-base-300));
   }
   .search-pill__icon {
     @apply shrink-0;
@@ -834,6 +1069,11 @@
     @apply border-base-300 bg-base-100 text-base-content fixed right-6 bottom-6 z-30 flex h-11 w-11 items-center justify-center rounded-none border shadow-md transition;
     opacity: 0;
     pointer-events: none;
+  }
+  [data-theme='chirpy-dark'] .back-to-top {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--color-base-content) 8%, transparent),
+      0 14px 30px color-mix(in oklab, var(--color-base-200) 72%, transparent);
   }
   .back-to-top.is-visible {
     opacity: 1;
@@ -867,13 +1107,71 @@
 @supports (view-transition-name: root) {
   ::view-transition-old(root),
   ::view-transition-new(root) {
-    animation: none;
     mix-blend-mode: normal;
+  }
+
+  html:not([data-theme-anim])::view-transition-old(root),
+  html:not([data-theme-anim])::view-transition-new(root) {
+    animation: none;
+  }
+
+  html[data-astro-transition]:not([data-theme-anim]) .post-transition-title {
+    view-transition-name: chirpy-post-title;
+  }
+  html[data-astro-transition]:not([data-theme-anim]) .post-transition-description {
+    view-transition-name: chirpy-post-description;
+  }
+  html[data-astro-transition]:not([data-theme-anim]) .post-transition-date {
+    view-transition-name: chirpy-post-date;
+  }
+  html[data-astro-transition]:not([data-theme-anim]) .post-transition-categories {
+    view-transition-name: chirpy-post-categories;
+  }
+  html[data-astro-transition]:not([data-theme-anim]) .post-transition-tags {
+    view-transition-name: chirpy-post-tags;
+  }
+
+  html[data-astro-transition]:not([data-theme-anim])::view-transition-group(chirpy-post-title),
+  html[data-astro-transition]:not([data-theme-anim])::view-transition-group(
+      chirpy-post-description
+    ),
+  html[data-astro-transition]:not([data-theme-anim])::view-transition-group(chirpy-post-date),
+  html[data-astro-transition]:not([data-theme-anim])::view-transition-group(chirpy-post-categories),
+  html[data-astro-transition]:not([data-theme-anim])::view-transition-group(chirpy-post-tags),
+  html[data-astro-transition]:not([data-theme-anim])::view-transition-old(chirpy-post-title),
+  html[data-astro-transition]:not([data-theme-anim])::view-transition-new(chirpy-post-title),
+  html[data-astro-transition]:not([data-theme-anim])::view-transition-old(chirpy-post-description),
+  html[data-astro-transition]:not([data-theme-anim])::view-transition-new(chirpy-post-description),
+  html[data-astro-transition]:not([data-theme-anim])::view-transition-old(chirpy-post-date),
+  html[data-astro-transition]:not([data-theme-anim])::view-transition-new(chirpy-post-date),
+  html[data-astro-transition]:not([data-theme-anim])::view-transition-old(chirpy-post-categories),
+  html[data-astro-transition]:not([data-theme-anim])::view-transition-new(chirpy-post-categories),
+  html[data-astro-transition]:not([data-theme-anim])::view-transition-old(chirpy-post-tags),
+  html[data-astro-transition]:not([data-theme-anim])::view-transition-new(chirpy-post-tags) {
+    animation-duration: 240ms;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    mix-blend-mode: normal;
+  }
+
+  html[data-a11y-reduce-motion='true']::view-transition-old(root),
+  html[data-a11y-reduce-motion='true']::view-transition-new(root),
+  html[data-a11y-reduce-motion='true']::view-transition-old(chirpy-post-title),
+  html[data-a11y-reduce-motion='true']::view-transition-new(chirpy-post-title),
+  html[data-a11y-reduce-motion='true']::view-transition-old(chirpy-post-description),
+  html[data-a11y-reduce-motion='true']::view-transition-new(chirpy-post-description),
+  html[data-a11y-reduce-motion='true']::view-transition-old(chirpy-post-date),
+  html[data-a11y-reduce-motion='true']::view-transition-new(chirpy-post-date),
+  html[data-a11y-reduce-motion='true']::view-transition-old(chirpy-post-categories),
+  html[data-a11y-reduce-motion='true']::view-transition-new(chirpy-post-categories),
+  html[data-a11y-reduce-motion='true']::view-transition-old(chirpy-post-tags),
+  html[data-a11y-reduce-motion='true']::view-transition-new(chirpy-post-tags) {
+    animation: none !important;
   }
 
   /* Going to dark: animate the NEW snapshot in. */
   html[data-theme-anim='to-dark']::view-transition-old(root) {
     z-index: 1;
+    animation: none;
   }
   html[data-theme-anim='to-dark']::view-transition-new(root) {
     z-index: 2;
@@ -887,6 +1185,7 @@
   }
   html[data-theme-anim='to-light']::view-transition-new(root) {
     z-index: 1;
+    animation: none;
   }
 
   @keyframes theme-reveal {
@@ -910,45 +1209,32 @@
 
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root),
-  ::view-transition-new(root) {
+  ::view-transition-new(root),
+  ::view-transition-old(chirpy-post-title),
+  ::view-transition-new(chirpy-post-title),
+  ::view-transition-old(chirpy-post-description),
+  ::view-transition-new(chirpy-post-description),
+  ::view-transition-old(chirpy-post-date),
+  ::view-transition-new(chirpy-post-date),
+  ::view-transition-old(chirpy-post-categories),
+  ::view-transition-new(chirpy-post-categories),
+  ::view-transition-old(chirpy-post-tags),
+  ::view-transition-new(chirpy-post-tags) {
     animation: none !important;
   }
 }
 
-/* ---------- Custom search modal (Pagefind headless API) ---------- */
-/*
- * The site uses Pagefind's headless `pagefind.js` API and renders all
- * results with our own Tailwind / daisyUI markup. We intentionally do
- * NOT load `pagefind-ui.css`, so none of Pagefind's default styles
- * apply. The rules below cover the few visual states the JS layer
- * cannot express purely with utility classes.
- */
-
-/* Highlight the keyboard-focused result. */
-.search-result[data-active='true'] {
-  background: color-mix(in oklab, var(--color-primary) 8%, transparent);
-}
-.search-result[data-active='true'] h3 {
-  color: var(--color-primary);
-}
-
-/* Hover wash mirrors the keyboard-focus state. */
-.search-result:hover {
-  background: color-mix(in oklab, var(--color-primary) 5%, transparent);
-}
-
-/* `<mark>` in result excerpts (Pagefind wraps matched terms). */
-[data-search-results] mark {
-  background: color-mix(in oklab, var(--color-warning) 30%, transparent);
-  color: var(--color-base-content);
-  padding: 0 0.15em;
-  border-radius: 0;
-  font-weight: 600;
-}
-
-/* Hide the native clear (×) the browser adds to <input type="search">. */
-[data-search-input]::-webkit-search-cancel-button,
-[data-search-input]::-webkit-search-decoration {
-  -webkit-appearance: none;
-  appearance: none;
+html[data-a11y-reduce-motion='true']::view-transition-old(root),
+html[data-a11y-reduce-motion='true']::view-transition-new(root),
+html[data-a11y-reduce-motion='true']::view-transition-old(chirpy-post-title),
+html[data-a11y-reduce-motion='true']::view-transition-new(chirpy-post-title),
+html[data-a11y-reduce-motion='true']::view-transition-old(chirpy-post-description),
+html[data-a11y-reduce-motion='true']::view-transition-new(chirpy-post-description),
+html[data-a11y-reduce-motion='true']::view-transition-old(chirpy-post-date),
+html[data-a11y-reduce-motion='true']::view-transition-new(chirpy-post-date),
+html[data-a11y-reduce-motion='true']::view-transition-old(chirpy-post-categories),
+html[data-a11y-reduce-motion='true']::view-transition-new(chirpy-post-categories),
+html[data-a11y-reduce-motion='true']::view-transition-old(chirpy-post-tags),
+html[data-a11y-reduce-motion='true']::view-transition-new(chirpy-post-tags) {
+  animation: none !important;
 }

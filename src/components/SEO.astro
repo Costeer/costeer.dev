@@ -1,4 +1,5 @@
 ---
+import { SEO as AstroSEO } from 'astro-seo';
 import { SITE } from '../config';
 import { localizedPath, withBase } from '../i18n/utils';
 import type { SeoMeta } from '../utils/seo';
@@ -13,7 +14,8 @@ const { meta } = Astro.props;
 // these <link rel="alternate"> tags in <head>. We advertise the active
 // locale's feed as the primary one, and (when multilingual) every other
 // locale's feed too.
-const localeSuffix = (locale: string) => (locale === SITE.defaultLocale ? '' : ` (${locale.toUpperCase()})`);
+const localeSuffix = (locale: string) =>
+  locale === SITE.defaultLocale ? '' : ` (${locale.toUpperCase()})`;
 const primaryFeed = {
   href: localizedPath('/rss.xml', meta.locale),
   title: `${SITE.title}${localeSuffix(meta.locale)} — RSS`,
@@ -27,56 +29,68 @@ const otherFeeds = SITE.multilingual
       }))
   : [];
 const sitemapHref = withBase('/sitemap-index.xml');
+const ogLocale = meta.locale === 'de' ? 'de_DE' : 'en_US';
+const alternateOgLocales = SITE.multilingual
+  ? meta.hreflangs
+      .map(({ locale }) => locale)
+      .filter((locale) => locale !== meta.locale && locale !== 'x-default')
+      .map((locale) => (locale === 'de' ? 'de_DE' : 'en_US'))
+  : [];
+const languageAlternates = SITE.multilingual
+  ? meta.hreflangs.map(({ locale, href }) => ({ hrefLang: locale, href }))
+  : undefined;
+const feedLinks = [primaryFeed, ...otherFeeds].map((feed) => ({
+  rel: 'alternate',
+  type: 'application/rss+xml',
+  title: feed.title,
+  href: feed.href,
+}));
+const article =
+  meta.type === 'article'
+    ? {
+        publishedTime: meta.publishedTime,
+        modifiedTime: meta.modifiedTime,
+        authors: [SITE.author.name],
+        tags: meta.tags,
+      }
+    : undefined;
+const metaTags =
+  meta.type === 'article' ? [{ name: 'fediverse:creator', content: '@costeer@mastodon.de' }] : [];
 ---
 
-<title>{meta.title}</title>
-<meta name="description" content={meta.description} />
-<link rel="canonical" href={meta.canonical} />
-
-{/* Feed + sitemap auto-discovery */}
-<link
-  rel="alternate"
-  type="application/rss+xml"
-  title={primaryFeed.title}
-  href={primaryFeed.href}
+<AstroSEO
+  title={meta.title}
+  description={meta.description}
+  canonical={meta.canonical}
+  robotsExtras="max-image-preview:large"
+  languageAlternates={languageAlternates}
+  openGraph={{
+    basic: {
+      title: meta.title,
+      type: meta.type,
+      image: meta.ogImage,
+      url: meta.canonical,
+    },
+    optional: {
+      description: meta.description,
+      locale: ogLocale,
+      localeAlternate: alternateOgLocales,
+      siteName: SITE.title,
+    },
+    image: {
+      alt: `${SITE.title} social preview image`,
+    },
+    article,
+  }}
+  twitter={{
+    card: 'summary_large_image',
+    title: meta.title,
+    description: meta.description,
+    image: meta.ogImage,
+    imageAlt: `${SITE.title} social preview image`,
+  }}
+  extend={{
+    link: [...feedLinks, { rel: 'sitemap', type: 'application/xml', href: sitemapHref }],
+    meta: metaTags,
+  }}
 />
-{
-  otherFeeds.map((f) => (
-    <link rel="alternate" type="application/rss+xml" title={f.title} href={f.href} />
-  ))
-}
-<link rel="sitemap" type="application/xml" href={sitemapHref} />
-
-{/* Open Graph */}
-<meta property="og:site_name" content={SITE.title} />
-<meta property="og:title" content={meta.title} />
-<meta property="og:description" content={meta.description} />
-<meta property="og:type" content={meta.type} />
-<meta property="og:url" content={meta.canonical} />
-<meta property="og:image" content={meta.ogImage} />
-<meta property="og:locale" content={meta.locale === 'de' ? 'de_DE' : 'en_US'} />
-
-{/* Twitter */}
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content={meta.title} />
-<meta name="twitter:description" content={meta.description} />
-<meta name="twitter:image" content={meta.ogImage} />
-
-{/* Article-specific */}
-{
-  meta.type === 'article' && meta.publishedTime && (
-    <meta property="article:published_time" content={meta.publishedTime} />
-  )
-}
-{
-  meta.type === 'article' && meta.modifiedTime && (
-    <meta property="article:modified_time" content={meta.modifiedTime} />
-  )
-}
-{meta.type === 'article' && meta.tags?.map((tag) => <meta property="article:tag" content={tag} />)}
-
-{/* hreflang alternates for SEO */}
-{
-  SITE.multilingual &&
-    meta.hreflangs.map(({ locale, href }) => <link rel="alternate" hreflang={locale} href={href} />)
-}

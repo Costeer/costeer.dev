@@ -1,0 +1,267 @@
+---
+interface Props {
+  fallbackHref: string;
+}
+
+const { fallbackHref } = Astro.props;
+const siteBase = (import.meta.env.BASE_URL ?? '/').replace(/\/+$/, '');
+---
+
+<aside class="fallback-locale-banner" data-fallback-locale-banner hidden>
+  <div class="fallback-locale-banner__body">
+    <p class="fallback-locale-banner__title">Dieser Beitrag ist nur auf Englisch verfügbar.</p>
+    <p class="fallback-locale-banner__copy">
+      Du bist deshalb von der deutschen Ansicht zur englischen Originalseite gewechselt.
+    </p>
+  </div>
+  <div class="fallback-locale-banner__actions">
+    <button
+      type="button"
+      class="fallback-locale-banner__btn fallback-locale-banner__btn--ghost"
+      data-fallback-back
+    >
+      Zurück
+    </button>
+    <button
+      type="button"
+      class="fallback-locale-banner__btn fallback-locale-banner__btn--solid"
+      data-fallback-stay
+    >
+      Hier bleiben
+    </button>
+  </div>
+</aside>
+
+<script is:inline define:vars={{ fallbackHref, siteBase }}>
+  (() => {
+    const noticeKey = 'chirpy-locale-fallback-notice';
+    const dismissedPrefix = 'chirpy-locale-fallback-dismissed:';
+
+    const stripBase = (pathname) => {
+      if (!siteBase) return pathname;
+      if (pathname === siteBase) return '/';
+      if (pathname.startsWith(siteBase + '/')) return pathname.slice(siteBase.length);
+      return pathname;
+    };
+
+    const normalizePath = (pathname) => {
+      const stripped = stripBase(pathname || '/');
+      return stripped !== '/' && stripped.endsWith('/') ? stripped.slice(0, -1) : stripped;
+    };
+
+    const initBanner = () => {
+      const banner = document.querySelector('[data-fallback-locale-banner]');
+      if (!(banner instanceof HTMLElement)) return;
+
+      const currentPath = normalizePath(window.location.pathname);
+      const dismissedKey = `${dismissedPrefix}${currentPath}`;
+      if (sessionStorage.getItem(dismissedKey) === '1') return;
+
+      const backButton = banner.querySelector('[data-fallback-back]');
+      const stayButton = banner.querySelector('[data-fallback-stay]');
+      if (
+        !(backButton instanceof HTMLButtonElement) ||
+        !(stayButton instanceof HTMLButtonElement)
+      ) {
+        return;
+      }
+
+      let originPath = fallbackHref;
+      let shouldShow = false;
+
+      try {
+        const raw = sessionStorage.getItem(noticeKey);
+        if (raw) {
+          const payload = JSON.parse(raw);
+          const fresh = typeof payload?.ts === 'number' && Date.now() - payload.ts < 5 * 60 * 1000;
+          if (
+            fresh &&
+            payload?.sourceLocale === 'de' &&
+            normalizePath(payload?.toPath) === currentPath
+          ) {
+            shouldShow = true;
+            if (typeof payload?.fromPath === 'string' && payload.fromPath) {
+              originPath = payload.fromPath;
+            }
+          }
+          sessionStorage.removeItem(noticeKey);
+        }
+      } catch {
+        sessionStorage.removeItem(noticeKey);
+      }
+
+      if (!shouldShow && document.referrer) {
+        try {
+          const referrer = new URL(document.referrer);
+          const refPath = normalizePath(referrer.pathname);
+          if (
+            referrer.origin === window.location.origin &&
+            (refPath === '/de' || refPath.startsWith('/de/'))
+          ) {
+            shouldShow = true;
+            originPath = `${referrer.pathname}${referrer.search}${referrer.hash}`;
+          }
+        } catch {
+          /* ignore malformed referrer */
+        }
+      }
+
+      if (!shouldShow) return;
+
+      banner.hidden = false;
+      requestAnimationFrame(() => {
+        banner.dataset.visible = 'true';
+      });
+
+      backButton.onclick = () => {
+        if (window.history.length > 1) {
+          window.history.back();
+          return;
+        }
+        window.location.href = originPath || fallbackHref;
+      };
+
+      stayButton.onclick = () => {
+        sessionStorage.setItem(dismissedKey, '1');
+        delete banner.dataset.visible;
+        banner.dataset.closing = 'true';
+        window.setTimeout(() => {
+          banner.hidden = true;
+          delete banner.dataset.closing;
+        }, 180);
+      };
+    };
+
+    initBanner();
+  })();
+</script>
+
+<style>
+  .fallback-locale-banner {
+    display: grid;
+    gap: 0.85rem;
+    margin: 0 0 1.75rem;
+    padding: 1rem;
+    position: sticky;
+    top: calc(var(--height-topbar) + 0.5rem);
+    z-index: 20;
+    border: 1px solid color-mix(in oklch, var(--color-base-content) 18%, transparent);
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklch, var(--color-warning) 20%, var(--color-base-100)) 0%,
+      color-mix(in oklch, var(--color-primary) 10%, var(--color-base-100)) 100%
+    );
+    box-shadow: 0 1px 0 color-mix(in oklch, var(--color-base-content) 10%, transparent);
+    opacity: 0;
+    transform: translateY(-0.4rem);
+    transition:
+      opacity 180ms ease-out,
+      transform 180ms ease-out;
+  }
+
+  .fallback-locale-banner[data-visible='true'] {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .fallback-locale-banner__body {
+    display: grid;
+    gap: 0.3rem;
+  }
+
+  .fallback-locale-banner__title,
+  .fallback-locale-banner__copy {
+    margin: 0;
+  }
+
+  .fallback-locale-banner__title {
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    color: var(--color-base-content);
+  }
+
+  .fallback-locale-banner__copy {
+    max-width: 62ch;
+    font-size: 0.94rem;
+    line-height: 1.5;
+    color: color-mix(in oklch, var(--color-base-content) 82%, transparent);
+  }
+
+  .fallback-locale-banner__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  .fallback-locale-banner__btn {
+    appearance: none;
+    border: 1px solid color-mix(in oklch, var(--color-base-content) 20%, transparent);
+    border-radius: 0;
+    padding: 0.6rem 0.85rem;
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1.1;
+    cursor: pointer;
+    transition:
+      background-color 160ms ease-out,
+      color 160ms ease-out,
+      border-color 160ms ease-out,
+      transform 160ms ease-out;
+  }
+
+  .fallback-locale-banner__btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .fallback-locale-banner__btn:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  .fallback-locale-banner__btn--ghost {
+    background: color-mix(in oklch, var(--color-base-100) 72%, transparent);
+    color: var(--color-base-content);
+  }
+
+  .fallback-locale-banner__btn--ghost:hover {
+    background: color-mix(in oklch, var(--color-base-200) 88%, var(--color-warning) 12%);
+  }
+
+  .fallback-locale-banner__btn--solid {
+    background: var(--color-primary);
+    color: var(--color-primary-content);
+    border-color: color-mix(in oklch, var(--color-primary) 68%, var(--color-base-content) 32%);
+  }
+
+  .fallback-locale-banner__btn--solid:hover {
+    background: color-mix(in oklch, var(--color-primary) 90%, black 10%);
+  }
+
+  @media (min-width: 48rem) {
+    .fallback-locale-banner {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+    }
+
+    .fallback-locale-banner__body {
+      grid-column: 1;
+    }
+
+    .fallback-locale-banner__actions {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      align-self: center;
+      justify-content: flex-end;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fallback-locale-banner,
+    .fallback-locale-banner__btn {
+      transition: none;
+    }
+  }
+</style>

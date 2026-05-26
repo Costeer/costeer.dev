@@ -10,9 +10,16 @@ interface Props {
   animate?: boolean;
   /** Let the browser skip off-screen card rendering until scrolled near them. */
   lazyRender?: boolean;
+  showReadingDepth?: boolean;
 }
 
-const { posts, locale, animate = false, lazyRender = false } = Astro.props;
+const {
+  posts,
+  locale,
+  animate = false,
+  lazyRender = false,
+  showReadingDepth = false,
+} = Astro.props;
 const t = useTranslations(locale);
 ---
 
@@ -22,7 +29,7 @@ const t = useTranslations(locale);
       {t('list.empty')}
     </p>
   ) : (
-    <div id="post-list">
+    <div id="post-list" data-card-list-animate={animate ? 'true' : undefined}>
       {posts.map((post, index) => (
         <PostCard
           post={post}
@@ -31,8 +38,30 @@ const t = useTranslations(locale);
           animate={animate}
           animationDelay={`${Math.min(index * 80, 500)}ms`}
           lazyRender={lazyRender}
+          showReadingDepth={showReadingDepth}
         />
       ))}
     </div>
   )
 }
+
+<script is:inline>
+  (() => {
+    const hydrateCardAnimations = () => {
+      const list = document.querySelector('[data-card-list-animate="true"]');
+      if (!(list instanceof HTMLElement)) return;
+
+      const cards = Array.from(list.querySelectorAll('[data-card-animate="true"]')).slice(0, 8);
+
+      cards.forEach((card) => {
+        if (!(card instanceof HTMLElement)) return;
+
+        requestAnimationFrame(() => {
+          card.classList.add('chirpy-card-float-in');
+        });
+      });
+    };
+
+    hydrateCardAnimations();
+  })();
+</script>

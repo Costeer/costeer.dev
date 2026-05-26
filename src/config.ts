@@ -1,10 +1,10 @@
-import avatarImg from './assets/images/site/avatar.svg';
+import avatarImg from './assets/images/site/avatar.webp';
 import ogDefaultImg from './assets/images/site/og-default.svg';
 import type { SiteConfig, NavItem, SocialLink, MastodonCommentsConfig } from './types/config';
 
 /**
- * Global site + theme configuration.
- * Edit values here to rebrand the theme. All values are typed and consumed
+ * Global site configuration.
+ * Edit values here to update site identity. All values are typed and consumed
  * across layouts, components, RSS, sitemap, and SEO.
  */
 
@@ -25,39 +25,39 @@ export type Locale = (typeof locales)[number];
  * automatically — the entry won't render and no broken `your-handle`
  * URL is exposed.
  */
-const GITHUB_HANDLE = import.meta.env.PUBLIC_GITHUB_HANDLE ?? '';
-const GITHUB_REPO = import.meta.env.PUBLIC_GITHUB_REPO ?? 'chirping-astro';
-const TWITTER_HANDLE = import.meta.env.PUBLIC_TWITTER_HANDLE ?? '';
-const THEME_REPO_URL = 'https://github.com/kannansuresh/chirping-astro';
-
+const CODEBERG_HANDLE = import.meta.env.PUBLIC_CODEBERG_HANDLE ?? '';
+const CODEBERG_REPO = import.meta.env.PUBLIC_CODEBERG_REPO ?? 'costeer.dev';
+const MASTODON_PROFILE_URL = import.meta.env.PUBLIC_MASTODON_PROFILE_URL ?? '';
 /**
- * Public GitHub coordinates of the deployed source. Useful for custom links
+ * Public Codeberg coordinates of the deployed source. Useful for custom links
  * and integrations that need a repository URL. When
- * `PUBLIC_GITHUB_HANDLE` is unset, `url` falls back to a safe default so
+ * `PUBLIC_CODEBERG_HANDLE` is unset, `url` falls back to a safe default so
  * generated links never point at a 404.
  */
 export const REPO = {
-  handle: GITHUB_HANDLE,
-  name: GITHUB_REPO,
-  url: GITHUB_HANDLE ? `https://github.com/${GITHUB_HANDLE}/${GITHUB_REPO}` : 'https://github.com',
+  handle: CODEBERG_HANDLE,
+  name: CODEBERG_REPO,
+  url: CODEBERG_HANDLE
+    ? `https://codeberg.org/${CODEBERG_HANDLE}/${CODEBERG_REPO}`
+    : 'https://codeberg.org',
 } as const;
 
 export const SITE: SiteConfig = {
   title: 'costeer.dev',
   /** Site tagline / description. */
   description:
-    'A modern, multilingual Astro v6 theme inspired by Chirpy — built with Tailwind v4, daisyUI, MDX, Pagefind, and Mastodon comments.',
+    'Personal publishing system for technical notes and political writing, light brutalist, accessible, and direct.',
   /** Author/handle shown in footer + meta. */
   author: {
     name: 'costeer',
-    url: GITHUB_HANDLE ? `https://github.com/${GITHUB_HANDLE}` : undefined,
+    url: CODEBERG_HANDLE ? `https://codeberg.org/${CODEBERG_HANDLE}` : undefined,
     avatar: avatarImg,
-    bio: 'Im a developer and political activist from Germany',
+    bio: 'Im a developer and activist from Germany',
   },
   /** Default OG image. */
   defaultOgImage: ogDefaultImg.src,
   /** Number of posts per page on listings. */
-  postsPerPage: 8,
+  postsPerPage: 6,
   /** Display ISO 8601 date format if true, otherwise locale-aware. */
   isoDates: false,
   /** Site-wide default for whether posts should display their featured image. */
@@ -70,7 +70,7 @@ export const SITE: SiteConfig = {
   autoOgImage: true,
   /** Show a link to the Privacy Policy page in the footer. */
   showPrivacyPolicy: true,
-  /** Footer text/link controls. */
+  /** Footer text controls. */
   footer: {
     /**
      * Optional full override for the left footer line. Supports {year} and {author}.
@@ -78,18 +78,12 @@ export const SITE: SiteConfig = {
      */
     leftText: undefined,
     /**
-     * Optional custom text before the theme link on the right footer line.
-     * Default when undefined: "Powered by Astro · Theme <themeName>".
+     * Optional custom text for the right footer line.
+     * Leave undefined to hide the right footer line.
      */
     rightText: undefined,
     /** Whether to show the Privacy Policy link in the footer. */
     showPrivacyPolicy: true,
-    /** Whether to show theme credits in the footer right side. Theme <themeName> */
-    showThemeCredits: false,
-    /** Label for the theme repository link in the right footer line. */
-    themeName: 'Chirping Astro',
-    /** Default upstream theme repository. */
-    themeUrl: THEME_REPO_URL,
   },
 
   // ==========================================
@@ -99,7 +93,7 @@ export const SITE: SiteConfig = {
   /** Public URL of the deployed site, no trailing slash. Breaks SEO/RSS if incorrect. */
   // `||` (not `??`) so an explicitly empty `SITE_URL=` in `.env` also
   // falls back to the default. Astro requires `site` to be a valid URL.
-  url: import.meta.env.SITE_URL || 'https://chirping-astro.example.com',
+  url: import.meta.env.SITE_URL || 'https://costeer.dev',
   /** Supported locales. Changing this requires adding/removing locale folders, content, and i18n entries. */
   locales: locales,
   /** Default locale. Changing this is a breaking, atomic, multi-file operation. */
@@ -112,7 +106,6 @@ export const NAV: readonly NavItem[] = [
   { key: 'home', href: '/', icon: 'lucide:home' },
   { key: 'categories', href: '/categories', icon: 'lucide:layers' },
   { key: 'tags', href: '/tags', icon: 'lucide:tag' },
-  { key: 'archives', href: '/archives', icon: 'lucide:archive' },
   { key: 'about', href: '/about', icon: 'lucide:info' },
 ] as const;
 
@@ -126,15 +119,16 @@ export const NAV: readonly NavItem[] = [
  * literal entry below — the type is `SocialLink`.
  */
 export const SOCIALS: readonly SocialLink[] = [
-  GITHUB_HANDLE && {
-    label: 'GitHub',
-    href: `https://github.com/${GITHUB_HANDLE}`,
-    icon: 'simple-icons:github',
+  CODEBERG_HANDLE && {
+    label: 'Codeberg',
+    href: `https://codeberg.org/${CODEBERG_HANDLE}`,
+    icon: 'simple-icons:codeberg',
   },
-  TWITTER_HANDLE && {
-    label: 'Twitter',
-    href: `https://x.com/${TWITTER_HANDLE}`,
-    icon: 'simple-icons:x',
+  MASTODON_PROFILE_URL && {
+    label: 'Mastodon',
+    href: MASTODON_PROFILE_URL,
+    icon: 'simple-icons:mastodon',
+    rel: 'me noopener',
   },
   { label: 'RSS', href: '/rss.xml', icon: 'lucide:rss' },
 ].filter(Boolean) as SocialLink[];
@@ -150,7 +144,7 @@ export const SOCIALS: readonly SocialLink[] = [
 export const MASTODON_COMMENTS: MastodonCommentsConfig = {
   enabled: (import.meta.env.PUBLIC_MASTODON_COMMENTS_ENABLED ?? 'false') === 'true',
   instance: import.meta.env.PUBLIC_MASTODON_INSTANCE ?? 'https://mastodon.social',
-  profileUrl: import.meta.env.PUBLIC_MASTODON_PROFILE_URL,
+  profileUrl: MASTODON_PROFILE_URL,
 };
 
 /**

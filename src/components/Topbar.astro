@@ -28,34 +28,32 @@ const t = useTranslations(locale);
 const home = localizedPath('/', locale);
 ---
 
-<header class="chirpy-topbar" aria-label="Top Bar">
-  <div class="flex flex-1 items-center gap-2 px-1">
+<header class="chirpy-topbar site-topbar" aria-label="Top Bar">
+  <div class="site-topbar__left flex min-w-0 flex-1 items-center gap-2">
     <button
       type="button"
       data-sidebar-toggle
-      class="btn btn-ghost btn-sm btn-square lg:hidden"
+      class="site-topbar__menu btn btn-ghost btn-sm aspect-square p-0 lg:hidden"
       aria-label={t('nav.toggleMenu')}
     >
       <Icon name="lucide:menu" width={18} height={18} />
     </button>
 
-    <nav aria-label="Breadcrumb" class="text-base-content hidden truncate text-sm sm:block">
-      <ol class="flex items-center gap-1">
+    <nav aria-label="Breadcrumb" class="site-topbar__nav hidden min-w-0 truncate text-sm sm:block">
+      <ol class="site-topbar__crumbs flex items-center gap-1">
         <li>
-          <a href={home} class="hover:text-primary">{t('nav.home')}</a>
+          <a href={home}>{t('nav.home')}</a>
         </li>
         {
           crumbs.map((crumb, i) => (
             <li class="flex items-center gap-1 truncate">
-              <span aria-hidden="true" class="text-base-content">
+              <span aria-hidden="true" class="site-topbar__slash">
                 /
               </span>
               {crumb.href && i < crumbs.length - 1 ? (
-                <a href={crumb.href} class="hover:text-primary">
-                  {crumb.label}
-                </a>
+                <a href={crumb.href}>{crumb.label}</a>
               ) : (
-                <span class="text-base-content truncate font-medium">{crumb.label}</span>
+                <span class="site-topbar__current truncate">{crumb.label}</span>
               )}
             </li>
           ))
@@ -63,14 +61,147 @@ const home = localizedPath('/', locale);
       </ol>
     </nav>
 
-    {/* Mobile site title */}
-    <a href={home} class="ml-1 truncate text-base font-semibold sm:hidden" aria-label={SITE.title}>
+    <a
+      href={home}
+      class="site-topbar__mobile-title ml-1 truncate text-base font-semibold sm:hidden"
+      aria-label={SITE.title}
+    >
       {SITE.title}
     </a>
   </div>
 
-  <div class="chirpy-topbar__search">
+  <div class="chirpy-topbar__search site-topbar__search">
     <SearchButton locale={locale} />
     {SITE.multilingual && <LanguageSwitcher locale={locale} availableLocales={availableLocales} />}
   </div>
 </header>
+
+<style>
+  .site-topbar {
+    --topbar-rule: var(--color-base-300);
+    --topbar-field: #1a1b24;
+    min-height: 3.2rem;
+    padding-block: 0.65rem;
+  }
+
+  .site-topbar::before {
+    inset-inline: -1rem;
+    border-block-end: 1px solid var(--topbar-rule);
+    background: var(--topbar-field);
+  }
+
+  .site-topbar__left {
+    align-self: stretch;
+  }
+
+  .site-topbar__nav {
+    color: color-mix(in oklab, var(--color-base-content) 72%, transparent);
+  }
+
+  .site-topbar__crumbs {
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .site-topbar__crumbs a {
+    color: inherit;
+    text-decoration: none;
+    transition:
+      color 160ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 160ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .site-topbar__crumbs a:hover,
+  .site-topbar__crumbs a:focus-visible {
+    color: var(--color-primary);
+  }
+
+  .site-topbar__slash {
+    color: color-mix(in oklab, var(--color-base-content) 32%, transparent);
+    font-weight: 500;
+  }
+
+  .site-topbar__current {
+    color: var(--color-base-content);
+    font-weight: 900;
+  }
+
+  .site-topbar__mobile-title {
+    color: var(--color-base-content);
+    letter-spacing: 0;
+  }
+
+  .site-topbar__menu {
+    min-width: 2.5rem;
+  }
+
+  .site-topbar .search-pill {
+    min-width: min(18rem, 38vw);
+    height: 2.55rem;
+    border-color: color-mix(in oklab, var(--color-base-content) 18%, var(--color-base-300));
+    background: color-mix(in oklab, var(--color-base-100) 64%, var(--color-base-200));
+    box-shadow: inset 0 -1px 0 color-mix(in oklab, var(--color-base-content) 6%, transparent);
+  }
+
+  .site-topbar .search-pill:hover,
+  .site-topbar .search-pill:focus-visible {
+    border-color: color-mix(in oklab, var(--color-primary) 62%, var(--color-base-300));
+    background: color-mix(in oklab, var(--color-primary) 8%, var(--color-base-100));
+  }
+
+  .site-topbar .search-pill__kbd {
+    min-width: 1.8rem;
+    height: 1.8rem;
+    background: color-mix(in oklab, var(--color-base-200) 86%, var(--color-base-100));
+  }
+
+  .site-topbar .chirpy-social {
+    width: 2.55rem;
+    height: 2.55rem;
+    border: 1px solid color-mix(in oklab, var(--color-base-content) 14%, var(--color-base-300));
+    background: color-mix(in oklab, var(--color-base-100) 54%, var(--color-base-200));
+  }
+
+  .site-topbar .chirpy-social:hover,
+  .site-topbar .chirpy-social:focus-visible {
+    color: var(--color-sidebar-action);
+    border-color: color-mix(in oklab, var(--color-sidebar-action) 48%, var(--color-base-300));
+    background: color-mix(in oklab, var(--color-sidebar-action) 12%, var(--color-base-100));
+  }
+
+  [data-theme='chirpy-dark'] .site-topbar {
+    --topbar-rule: var(--color-base-300);
+    --topbar-field: #1a1b24;
+  }
+
+  [data-theme='chirpy-dark'] .site-topbar .search-pill,
+  [data-theme='chirpy-dark'] .site-topbar .chirpy-social {
+    background: color-mix(in oklab, var(--color-base-100) 46%, var(--color-base-200));
+    border-color: color-mix(in oklab, var(--color-base-content) 16%, var(--color-base-300));
+  }
+
+  [data-theme='chirpy-dark'] .site-topbar .search-pill__kbd {
+    background: color-mix(in oklab, var(--color-base-200) 74%, var(--color-base-100));
+  }
+
+  @media (max-width: 639px) {
+    .site-topbar {
+      min-height: 3.45rem;
+      padding-block: 0.55rem;
+    }
+
+    .site-topbar .search-pill {
+      min-width: 0;
+      height: 2.5rem;
+    }
+
+    .site-topbar .chirpy-social {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+  }
+</style>

@@ -1,6 +1,5 @@
 /**
- * remark-alert — converts fenced code blocks with `lang="alert"` to daisyUI
- * alert HTML.
+ * remark-alert converts fenced code blocks with `lang="alert"` to site alert HTML.
  *
  * Syntax (inside a ```alert … ``` block):
  *
@@ -10,7 +9,7 @@
  *   icon:        lucide:info  (any @iconify-json/* package name)  |  none
  *   title:       Short bold heading
  *   description: Body text (or remaining non-key lines)
- *   class:       Extra Tailwind / daisyUI classes to append
+ *   class:       Extra Tailwind / site alert classes to append
  *
  * All fields are optional. Lines that are not recognised key: value pairs
  * are collected as the description.
@@ -41,6 +40,7 @@
 import { createRequire } from 'node:module';
 import { getIconData, iconToSVG } from '@iconify/utils';
 import type { IconifyJSON } from '@iconify/types';
+import { escapeHtml } from '../utils/browser-strings';
 
 // createRequire lets us load JSON files (CJS-compatible) from an ESM module.
 const _require = createRequire(import.meta.url);
@@ -60,7 +60,15 @@ function loadIconSet(prefix: string): IconifyJSON | null {
 }
 
 /** Default icon name for each alert type when no icon is explicitly given. */
-const DEFAULT_ICONS: Record<string, string> = {
+const ALERT_TYPES = ['info', 'success', 'warning', 'error'] as const;
+const ALERT_STYLES = ['soft', 'outline', 'dash'] as const;
+const ALERT_DIRECTIONS = ['vertical', 'horizontal', 'responsive'] as const;
+
+type AlertType = (typeof ALERT_TYPES)[number];
+type AlertStyle = (typeof ALERT_STYLES)[number];
+type AlertDirection = (typeof ALERT_DIRECTIONS)[number];
+
+const DEFAULT_ICONS: Record<AlertType, string> = {
   info: 'lucide:info',
   success: 'lucide:check-circle',
   warning: 'lucide:triangle-alert',
@@ -76,18 +84,6 @@ const RECOGNISED_KEYS = new Set([
   'description',
   'class',
 ]);
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
 
 /**
  * Build an inline SVG string for an iconify icon name (e.g. "lucide:info").
@@ -119,16 +115,31 @@ function buildIconSvg(iconName: string): string {
 // ---------------------------------------------------------------------------
 
 interface AlertOptions {
-  type?: string;
-  style?: string;
-  direction?: string;
+  type?: AlertType;
+  style?: AlertStyle;
+  direction?: AlertDirection;
   icon?: string;
   title?: string;
   description?: string;
+  /** Extra classes are limited to simple utility-class tokens. */
   class?: string;
 }
 
-function parseAlertBlock(raw: string): AlertOptions {
+function knownValue<const Values extends readonly string[]>(
+  value: string | undefined,
+  allowed: Values,
+): Values[number] | undefined {
+  if (!value) return undefined;
+  return allowed.includes(value) ? value : undefined;
+}
+
+function sanitizeClassList(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  const classes = value.split(/\s+/).filter((token) => /^[A-Za-z0-9_:/.[\]%-]+$/.test(token));
+  return classes.length > 0 ? classes.join(' ') : undefined;
+}
+
+export function parseAlertBlock(raw: string): AlertOptions {
   const opts: Record<string, string> = {};
   const extraLines: string[] = [];
 
@@ -150,14 +161,22 @@ function parseAlertBlock(raw: string): AlertOptions {
     if (extra) opts['description'] = extra;
   }
 
-  return opts as AlertOptions;
+  return {
+    type: knownValue(opts['type'], ALERT_TYPES),
+    style: knownValue(opts['style'], ALERT_STYLES),
+    direction: knownValue(opts['direction'], ALERT_DIRECTIONS),
+    icon: opts['icon'],
+    title: opts['title'],
+    description: opts['description'],
+    class: sanitizeClassList(opts['class']),
+  };
 }
 
 // ---------------------------------------------------------------------------
 // HTML builder
 // ---------------------------------------------------------------------------
 
-function buildAlertHtml(opts: AlertOptions): string {
+export function buildAlertHtml(opts: AlertOptions): string {
   // ── CSS classes ──────────────────────────────────────────────────────────
   const classes: string[] = ['alert'];
 
@@ -178,7 +197,7 @@ function buildAlertHtml(opts: AlertOptions): string {
       break;
     default:
       // When a title is present, stack vertically on mobile and switch to
-      // horizontal on sm+ — matching the daisyUI "title + description" example.
+      // horizontal on sm+ for alert blocks with separate title and body text.
       if (hasTitle) classes.push('alert-vertical', 'sm:alert-horizontal');
       break;
   }
@@ -196,7 +215,7 @@ function buildAlertHtml(opts: AlertOptions): string {
   let content = '';
 
   if (hasTitle) {
-    // Title + optional description — use the daisyUI nested-div structure.
+    // Title + optional description.
     // Override .prose-chirpy h3 margins with inline styles so heading
     // spacing from the theme does not bleed into the alert box.
     const titleHtml = `<h3 class="font-bold" style="margin:0;font-size:1rem;font-weight:700;">${escapeHtml(opts.title!)}</h3>`;

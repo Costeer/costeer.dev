@@ -4,7 +4,7 @@ description: 'Über diese Website und das verwendete Astro-Theme.'
 translationKey: about
 ---
 
-**Chirping Astro** ist ein schnelles, mehrsprachiges Astro-Theme für persönliche Blogs und technische Notizen.
+**costeer.dev** ist ein persönliches, mehrsprachiges Astro-Projekt für technische Notizen und politische Texte.
 
 Diese Website ist für klare Texte, schnelle Navigation und einfache Veröffentlichung gebaut. Sie kombiniert statische Seiten mit moderner Suche, RSS, Sitemap, dunklem Theme und Mastodon-basierten Kommentaren.
 
@@ -23,4 +23,4 @@ Die wichtigsten Einstellungen findest du in `src/config.ts`: Seitentitel, Beschr
 
 ## Credits
 
-Dieses Projekt basiert auf Astro, Tailwind CSS, daisyUI, Pagefind und vielen kleinen Open-Source-Bausteinen.
+Dieses Projekt basiert auf Astro, Tailwind CSS, Pagefind und vielen kleinen Open-Source-Bausteinen.

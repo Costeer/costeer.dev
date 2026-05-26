@@ -1,8 +1,10 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import PostList from '~/components/PostList.astro';
+import HomeFilters from '~/components/HomeFilters.astro';
+import HomeInfiniteFeed from '~/components/HomeInfiniteFeed.astro';
 import { SITE } from '~/config';
-import { getPosts } from '~/utils/posts';
+import { getVisiblePosts } from '~/utils/posts';
 
 export function getStaticPaths() {
   return SITE.locales.map((l) => ({
@@ -12,9 +14,12 @@ export function getStaticPaths() {
 }
 const { locale } = Astro.props;
 
-const posts = await getPosts(locale);
+const posts = await getVisiblePosts(locale);
+const recentPosts = posts.slice(0, SITE.postsPerPage);
 ---
 
 <BaseLayout title={SITE.title} description={SITE.description} pathWithoutLocale="/">
-  <PostList posts={posts} locale={locale} animate lazyRender />
+  <HomeFilters posts={posts} locale={locale} />
+  <PostList posts={recentPosts} locale={locale} animate lazyRender showReadingDepth />
+  <HomeInfiniteFeed locale={locale} totalPosts={posts.length} />
 </BaseLayout>

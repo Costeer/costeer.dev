@@ -6,7 +6,8 @@
  * On post pages we replace this with the article TOC (handled by PostLayout).
  */
 import type { Locale } from '../config';
-import { getPosts, getTagsWithCount, postPath, tagPath } from '../utils/posts';
+import { getVisiblePosts, getTagsWithCount, postPath, tagPath } from '../utils/posts';
+import ForeignLanguageMarker from './ForeignLanguageMarker.astro';
 
 interface Props {
   locale: Locale;
@@ -14,7 +15,7 @@ interface Props {
 
 const { locale } = Astro.props;
 
-const [posts, tags] = await Promise.all([getPosts(locale), getTagsWithCount(locale)]);
+const [posts, tags] = await Promise.all([getVisiblePosts(locale), getTagsWithCount(locale)]);
 
 const recent = posts
   .slice()
@@ -26,6 +27,8 @@ const recent = posts
   .slice(0, 5);
 
 const trending = tags.slice(0, 8);
+const tagHue = (tag: string) =>
+  [...tag].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) % 360, 0);
 ---
 
 <div class="chirpy-panel">
@@ -40,6 +43,11 @@ const trending = tags.slice(0, 8);
             <li>
               <a href={postPath(post)} class="chirpy-aside-item truncate">
                 {post.data.title}
+                {post.data.lang !== locale && (
+                  <span class="ml-1 align-middle">
+                    <ForeignLanguageMarker locale={locale} lang={post.data.lang} context="inline" />
+                  </span>
+                )}
               </a>
             </li>
           ))}
@@ -56,7 +64,11 @@ const trending = tags.slice(0, 8);
         </h2>
         <div class="flex flex-wrap gap-2">
           {trending.map((tag) => (
-            <a href={tagPath(locale, tag.name)} class="post-tag">
+            <a
+              href={tagPath(locale, tag.name)}
+              class="post-tag"
+              style={`--tag-hue: ${tagHue(tag.name)}`}
+            >
               {tag.name}
             </a>
           ))}

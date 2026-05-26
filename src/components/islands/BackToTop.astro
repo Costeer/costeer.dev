@@ -7,7 +7,19 @@ import { Icon } from 'astro-icon/components';
 </button>
 
 <script>
+  let backToTopCleanup: AbortController | undefined;
+
+  function prefersReducedMotion() {
+    return (
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      localStorage.getItem('a11y-reduce-motion') === 'true'
+    );
+  }
+
   function setupBackToTop() {
+    backToTopCleanup?.abort();
+    backToTopCleanup = new AbortController();
+    const { signal } = backToTopCleanup;
     const btn = document.querySelector<HTMLButtonElement>('[data-back-to-top]');
     if (!btn) return;
     const target = btn;
@@ -15,12 +27,15 @@ import { Icon } from 'astro-icon/components';
       if (window.scrollY > 320) target.classList.add('is-visible');
       else target.classList.remove('is-visible');
     }
-    target.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-    window.addEventListener('scroll', onScroll, { passive: true });
+    target.addEventListener(
+      'click',
+      () => {
+        window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+      },
+      { signal },
+    );
+    window.addEventListener('scroll', onScroll, { passive: true, signal });
     onScroll();
   }
   setupBackToTop();
-  document.addEventListener('astro:page-load', setupBackToTop);
 </script>

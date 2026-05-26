@@ -1,6 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import MathStyles from '../components/MathStyles.astro';
+import '../styles/content.css';
 import { SITE, type Locale } from '../config';
 
 interface Props {
@@ -10,19 +11,27 @@ interface Props {
   crumbs?: Array<{ label: string; href?: string }>;
   /** Load KaTeX CSS for this page only (no global load). */
   math?: boolean;
+  /** Raw content body, used to decide whether route-scoped mono faces are needed. */
+  body?: string;
 }
 
-const { title, description, crumbs, math = false } = Astro.props;
+const { title, description, crumbs, math = false, body = '' } = Astro.props;
+const hasVisibleCode = /(^|\n)\s*```|`[^`\n]+`|<pre\b|<code\b/i.test(body);
 
 const articleClass = SITE.boxedArticles
-  ? 'border-base-300 bg-base-100 rounded-none border px-5 py-8 sm:px-8 sm:py-10'
-  : 'px-1 py-6 sm:px-2 sm:py-8';
+  ? 'border-base-300 bg-base-100 rounded-none border px-5 pt-5 pb-8 sm:px-8 sm:pt-6 sm:pb-10'
+  : 'px-1 pt-3 pb-6 sm:px-2 sm:pt-4 sm:pb-8';
 ---
 
-<BaseLayout title={title} description={description} crumbs={crumbs ?? [{ label: title }]}>
+<BaseLayout
+  title={title}
+  description={description}
+  crumbs={crumbs ?? [{ label: title }]}
+  loadMono={hasVisibleCode}
+>
   {math && <MathStyles />}
   <article class={articleClass}>
-    <header class="mb-6">
+    <header class="chirpy-page-header mb-6">
       <h1 class="text-3xl leading-tight font-extrabold tracking-tight">{title}</h1>
       {description && <p class="text-base-content mt-2">{description}</p>}
     </header>

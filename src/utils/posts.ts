@@ -14,6 +14,7 @@ import type { ImageMetadata } from 'astro';
 
 import { SITE, type Locale } from '../config';
 import { withBase } from '../i18n/utils';
+import { postSlugFromId, slugify, stripLocaleFromId } from './post-routing';
 
 export type Post = CollectionEntry<'posts'> & {
   data: CollectionEntry<'posts'>['data'] & { lang: Locale; translationKey: string };
@@ -29,19 +30,10 @@ function localeFromId(id: string): Locale {
   return SITE.defaultLocale;
 }
 
-/** Strip locale prefix from a content ID. */
-function stripLocaleFromId(id: string): string {
-  const segs = id.split(/[\\/]/);
-  if (segs[0] && (SITE.locales as readonly string[]).includes(segs[0])) {
-    return segs.slice(1).join('/');
-  }
-  return id;
-}
-
 /** Normalize a post entry: ensure `lang` and `translationKey` are set. */
 function normalize(entry: CollectionEntry<'posts'>): Post {
   const lang = entry.data.lang ?? localeFromId(entry.id);
-  const translationKey = entry.data.translationKey ?? stripLocaleFromId(entry.id);
+  const translationKey = entry.data.translationKey ?? stripLocaleFromId(entry.id, SITE.locales);
   return {
     ...entry,
     data: { ...entry.data, lang, translationKey },
@@ -50,7 +42,7 @@ function normalize(entry: CollectionEntry<'posts'>): Post {
 
 /** Public slug used for the URL: filename minus locale and extension. */
 export function postSlug(entry: Post): string {
-  return stripLocaleFromId(entry.id).replace(/\.(md|mdx)$/i, '');
+  return postSlugFromId(entry.id, SITE.locales);
 }
 
 /** Full localized URL path for a post. */
@@ -73,6 +65,25 @@ export function sortPosts(posts: Post[]): Post[] {
   });
 }
 
+/** Prefer the requested locale when multiple translations share a key. */
+function dedupeByTranslationKey(posts: Post[], preferredLocale: Locale): Post[] {
+  const deduped = new Map<string, Post>();
+
+  for (const post of posts) {
+    const existing = deduped.get(post.data.translationKey);
+    if (!existing) {
+      deduped.set(post.data.translationKey, post);
+      continue;
+    }
+
+    if (existing.data.lang !== preferredLocale && post.data.lang === preferredLocale) {
+      deduped.set(post.data.translationKey, post);
+    }
+  }
+
+  return Array.from(deduped.values());
+}
+
 /**
  * Sort posts strictly by `pubDate` (newest first), ignoring `pinned`.
  *
@@ -93,10 +104,38 @@ export async function getPosts(locale: Locale): Promise<Post[]> {
   if (skipPostCollections) return [];
   const all = await getCollection('posts', (entry) => {
     if (isProd && entry.data.draft) return false;
-    const lang = entry.data.lang ?? localeFromId(entry.id);
+    const lang = (entry.data.lang ?? localeFromId(entry.id)) as Locale;
     return lang === locale;
   });
   return sortPosts(all.map(normalize));
+}
+
+/**
+ * Posts visible in a locale's listings.
+ *
+ * The default English site stays English-only. Non-default locales also show
+ * English posts so readers on the German site can still discover untranslated
+ * writing, with the UI marking those posts by language.
+ */
+export async function getVisiblePosts(locale: Locale): Promise<Post[]> {
+  if (locale === SITE.defaultLocale) return getPosts(locale);
+  if (skipPostCollections) return [];
+  const visibleLocales = new Set<Locale>([locale, SITE.defaultLocale]);
+  const all = await getCollection('posts', (entry) => {
+    if (isProd && entry.data.draft) return false;
+    const lang = (entry.data.lang ?? localeFromId(entry.id)) as Locale;
+    return visibleLocales.has(lang);
+  });
+  const normalized = all.map(normalize);
+
+  // Only the German site should collapse translation pairs and prefer the
+  // German version when both EN and DE exist. Other locales keep the
+  // current "show all visible posts" behavior.
+  if (locale === 'de') {
+    return sortPosts(dedupeByTranslationKey(normalized, locale));
+  }
+
+  return sortPosts(normalized);
 }
 
 /** Find a single post by locale + slug (path-relative). */
@@ -123,7 +162,7 @@ export async function getTranslations(entry: Post): Promise<Record<Locale, Post 
 export async function getTagsWithCount(
   locale: Locale,
 ): Promise<Array<{ name: string; count: number }>> {
-  const posts = await getPosts(locale);
+  const posts = await getVisiblePosts(locale);
   const map = new Map<string, number>();
   for (const p of posts) {
     for (const t of p.data.tags) map.set(t, (map.get(t) ?? 0) + 1);
@@ -137,7 +176,7 @@ export async function getTagsWithCount(
 export async function getCategoriesWithCount(
   locale: Locale,
 ): Promise<Array<{ name: string; count: number }>> {
-  const posts = await getPosts(locale);
+  const posts = await getVisiblePosts(locale);
   const map = new Map<string, number>();
   for (const p of posts) {
     for (const c of p.data.categories) map.set(c, (map.get(c) ?? 0) + 1);
@@ -145,41 +184,6 @@ export async function getCategoriesWithCount(
   return Array.from(map.entries())
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
-}
-
-/** Group posts by year -> month for the archives page. */
-export function groupByYearMonth(
-  posts: Post[],
-  locale: Locale,
-): Array<{
-  year: number;
-  months: Array<{ month: number; label: string; posts: Post[] }>;
-}> {
-  const buckets = new Map<number, Map<number, Post[]>>();
-  for (const post of posts) {
-    const date = post.data.pubDate;
-    if (!date) continue;
-    const y = date.getFullYear();
-    const m = date.getMonth();
-    if (!buckets.has(y)) buckets.set(y, new Map());
-    const months = buckets.get(y)!;
-    if (!months.has(m)) months.set(m, []);
-    months.get(m)!.push(post);
-  }
-  const lang = locale === 'de' ? 'de-DE' : 'en-US';
-  const fmt = new Intl.DateTimeFormat(lang, { month: 'long' });
-  return Array.from(buckets.entries())
-    .sort((a, b) => b[0] - a[0])
-    .map(([year, months]) => ({
-      year,
-      months: Array.from(months.entries())
-        .sort((a, b) => b[0] - a[0])
-        .map(([month, list]) => ({
-          month,
-          label: fmt.format(new Date(year, month, 1)),
-          posts: list,
-        })),
-    }));
 }
 
 /**
@@ -224,15 +228,17 @@ export function heroImage(post: Post): ImageMetadata | string | undefined {
   return img as ImageMetadata;
 }
 
-/** Slugify a tag/category for use in URLs. */
-export function slugify(value: string): string {
-  return value
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+/** Demo/sample content that should not get production-only generated assets. */
+export function isDemoPost(post: Post): boolean {
+  const key = post.data.translationKey;
+  return (
+    key === 'getting-started' ||
+    /^lorem-ipsum-\d+$/i.test(key) ||
+    post.data.tags.some((tag) => tag === 'lorem' || tag === 'placeholder')
+  );
 }
+
+export { slugify };
 
 /** Build the URL for a tag listing page in a given locale. */
 export function tagPath(locale: Locale, tag: string): string {

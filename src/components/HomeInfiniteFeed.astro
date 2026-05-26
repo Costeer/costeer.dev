@@ -1,0 +1,139 @@
+---
+import { SITE, type Locale } from '../config';
+import { localizedPath, useTranslations } from '../i18n/utils';
+import '../styles/post-card.css';
+
+interface Props {
+  locale: Locale;
+  totalPosts: number;
+}
+
+const { locale, totalPosts } = Astro.props;
+const t = useTranslations(locale);
+const hasMore = totalPosts > SITE.postsPerPage;
+const firstNextPage = 2;
+const endpointBase = localizedPath('/home-feed/', locale);
+---
+
+{
+  hasMore && (
+    <div
+      class="home-feed-loader my-8 flex justify-center"
+      data-home-feed-loader
+      data-next-page={firstNextPage}
+      data-total-posts={totalPosts}
+      data-page-size={SITE.postsPerPage}
+      data-endpoint-base={endpointBase}
+      data-label-load-more={t('home.loadMore')}
+      data-label-loading={t('home.loading')}
+      data-label-loading-more={t('home.loadingMore')}
+      data-label-loaded-more={t('home.loadedMore')}
+      data-label-no-more-posts={t('home.noMorePosts')}
+      data-label-try-again={t('home.tryAgain')}
+      data-label-load-error={t('home.loadError')}
+    >
+      <button class="btn btn-ghost btn-sm rounded-none" type="button" data-home-feed-button>
+        {t('home.loadMore')}
+      </button>
+      <span class="sr-only" role="status" aria-live="polite" data-home-feed-status />
+    </div>
+  )
+}
+
+<script>
+  const bootHomeFeed = () => {
+    const root = document.querySelector('[data-home-feed-loader]');
+    const list = document.querySelector('#post-list');
+    if (
+      !(root instanceof HTMLElement) ||
+      !(list instanceof HTMLElement) ||
+      root.dataset.bound === 'true'
+    )
+      return;
+
+    root.dataset.bound = 'true';
+    const button = root.querySelector('[data-home-feed-button]');
+    const status = root.querySelector('[data-home-feed-status]');
+    if (button && !(button instanceof HTMLButtonElement)) return;
+    const endpointBase = root.dataset.endpointBase ?? '/home-feed/';
+    const labels = root.dataset;
+    let nextPage = Number(root.dataset.nextPage ?? '2');
+    let loading = false;
+
+    const setStatus = (text: string) => {
+      if (status) status.textContent = text;
+    };
+
+    const loadNext = async () => {
+      if (loading || !nextPage) return;
+      loading = true;
+      if (button) {
+        button.disabled = true;
+        button.textContent = labels.labelLoading ?? 'Loading...';
+      }
+      setStatus(labels.labelLoadingMore ?? '');
+
+      try {
+        const response = await fetch(`${endpointBase}${nextPage}.json`);
+        if (!response.ok) throw new Error(`Failed to load page ${nextPage}`);
+        const data = await response.json();
+        const template = document.createElement('template');
+        template.innerHTML = data.html ?? '';
+        const loadedCount = template.content.querySelectorAll(
+          '[data-post-filter-item="true"]',
+        ).length;
+        list.append(template.content);
+        document.dispatchEvent(
+          new CustomEvent('home-feed:loaded', {
+            detail: { count: loadedCount, nextPage: data.nextPage ?? null },
+          }),
+        );
+        nextPage = data.nextPage ?? 0;
+
+        if (!nextPage) {
+          root.remove();
+          observer?.disconnect();
+        } else if (button) {
+          button.disabled = false;
+          button.textContent = labels.labelLoadMore ?? 'Load more';
+        }
+        setStatus(loadedCount ? (labels.labelLoadedMore ?? '') : (labels.labelNoMorePosts ?? ''));
+      } catch {
+        if (button) {
+          button.disabled = false;
+          button.textContent = labels.labelTryAgain ?? 'Try again';
+        }
+        setStatus(labels.labelLoadError ?? '');
+      } finally {
+        loading = false;
+      }
+    };
+
+    button?.addEventListener('click', loadNext);
+
+    const observer =
+      'IntersectionObserver' in window
+        ? new IntersectionObserver(
+            (entries) => {
+              if (entries.some((entry) => entry.isIntersecting)) void loadNext();
+            },
+            { rootMargin: '200px 0px' },
+          )
+        : undefined;
+    observer?.observe(root);
+  };
+
+  const windowWithHomeFeed = window as Window & {
+    __homeFeedBoot?: () => void;
+  };
+  if (windowWithHomeFeed.__homeFeedBoot) {
+    document.removeEventListener('astro:page-load', windowWithHomeFeed.__homeFeedBoot);
+  }
+  windowWithHomeFeed.__homeFeedBoot = bootHomeFeed;
+  document.addEventListener('astro:page-load', bootHomeFeed);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootHomeFeed, { once: true });
+  } else {
+    bootHomeFeed();
+  }
+</script>

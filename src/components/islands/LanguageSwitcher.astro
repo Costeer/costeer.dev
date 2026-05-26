@@ -37,22 +37,25 @@ const fallbackBase = stripLocale(Astro.url.pathname);
      switcher is just a static label \u2014 hide it entirely to avoid a
      dead-end menu. */
   otherLocales.length > 0 && (
-    <div class="dropdown dropdown-end">
-      <div
+    <div class="dropdown dropdown-end" data-lang-dropdown>
+      <button
+        type="button"
         tabindex="0"
-        role="button"
         class="chirpy-social"
         aria-haspopup="menu"
+        aria-expanded="false"
         aria-label={t('lang.switcher')}
         title={t('lang.switcher')}
+        data-lang-dropdown-trigger
       >
         <Icon name="lucide:languages" width={16} height={16} />
-      </div>
+      </button>
       <ul
         tabindex="0"
-        class="menu dropdown-content rounded-none border-base-300 bg-base-100 z-50 mt-2 w-44 border p-2 shadow-lg"
+        class="menu dropdown-content border-base-300 bg-base-100 z-50 mt-2 w-44 rounded-none border p-2 shadow-lg"
         role="menu"
         data-lang-switcher
+        data-lang-path={fallbackBase}
       >
         <li class="menu-title text-base-content px-2 py-1 text-xs tracking-wide uppercase">
           {t('lang.switcher')}
@@ -65,7 +68,11 @@ const fallbackBase = stripLocale(Astro.url.pathname);
         </li>
         {otherLocales.map((target) => (
           <li>
-            <a href={localizedPath(fallbackBase, target)} data-lang-target={target}>
+            <a
+              href={localizedPath(fallbackBase, target)}
+              data-lang-target={target}
+              data-lang-fallback={localizedPath(fallbackBase, target)}
+            >
               <span class="badge badge-ghost badge-sm">{target.toUpperCase()}</span>
               {localeLabel(target)}
             </a>
@@ -77,15 +84,85 @@ const fallbackBase = stripLocale(Astro.url.pathname);
 }
 
 <script>
+  type TranslationState = {
+    path?: string;
+    links?: Record<string, string>;
+  };
+
   function rewireLanguageLinks() {
-    const map = (window as unknown as { __chirpyTranslations?: Record<string, string> })
+    const state = (window as unknown as { __chirpyTranslations?: TranslationState })
       .__chirpyTranslations;
-    if (!map) return;
+
     document.querySelectorAll<HTMLAnchorElement>('[data-lang-target]').forEach((a) => {
+      const switcher = a.closest<HTMLElement>('[data-lang-switcher]');
+      const currentPath = switcher?.dataset.langPath;
+      const fallback = a.dataset.langFallback;
       const target = a.dataset.langTarget;
-      if (target && map[target]) a.href = map[target];
+      const map = state?.links;
+      const mapPath = state?.path;
+      const mapApplies = Boolean(map && (!mapPath || mapPath === currentPath));
+
+      if (target && mapApplies && map?.[target]) {
+        a.href = map[target];
+        return;
+      }
+
+      if (fallback) a.href = fallback;
     });
   }
+
+  function closeLanguageDropdowns(except?: HTMLElement) {
+    document.querySelectorAll<HTMLElement>('[data-lang-dropdown]').forEach((dropdown) => {
+      if (dropdown === except) return;
+      dropdown.classList.remove('is-open');
+      dropdown
+        .querySelector<HTMLButtonElement>('[data-lang-dropdown-trigger]')
+        ?.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  function setLanguageDropdownOpen(dropdown: HTMLElement, open: boolean) {
+    dropdown.classList.toggle('is-open', open);
+    dropdown
+      .querySelector<HTMLButtonElement>('[data-lang-dropdown-trigger]')
+      ?.setAttribute('aria-expanded', String(open));
+  }
+
+  function setupLanguageSwitcher() {
+    const state = window as unknown as { __chirpyLanguageSwitcherBound?: boolean };
+    if (state.__chirpyLanguageSwitcherBound) return;
+    state.__chirpyLanguageSwitcherBound = true;
+
+    document.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+
+      const trigger = target.closest<HTMLElement>('[data-lang-dropdown-trigger]');
+      if (trigger) {
+        const dropdown = trigger.closest<HTMLElement>('[data-lang-dropdown]');
+        if (!dropdown) return;
+        const nextOpen = !dropdown.classList.contains('is-open');
+        closeLanguageDropdowns(dropdown);
+        setLanguageDropdownOpen(dropdown, nextOpen);
+        return;
+      }
+
+      const menuLink = target.closest<HTMLElement>('[data-lang-switcher] a');
+      if (menuLink) {
+        closeLanguageDropdowns();
+        return;
+      }
+
+      if (!target.closest('[data-lang-dropdown]')) {
+        closeLanguageDropdowns();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeLanguageDropdowns();
+    });
+  }
+
   rewireLanguageLinks();
-  document.addEventListener('astro:page-load', rewireLanguageLinks);
+  setupLanguageSwitcher();
 </script>

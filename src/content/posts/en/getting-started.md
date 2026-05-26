@@ -1,6 +1,6 @@
 ---
 title: 'Getting Started'
-description: 'Your first post with Chirping Astro. Learn how to configure your site, write posts, and deploy.'
+description: 'Your first post on costeer.dev. Learn how to configure your site, write posts, and deploy.'
 pubDate: 2026-05-03
 tags: [getting-started, tutorial]
 categories: [Guide]
@@ -11,7 +11,7 @@ comments: true
 mastodonStatusUrl: 'https://mastodon.de/@costeer/116557295495592107'
 ---
 
-Welcome to your new blog! This sample post walks you through the basics of using **Chirping Astro**.
+Welcome to your new site. This sample post walks you through the basics of using this Astro setup.
 
 ## Configure your site
 
@@ -32,18 +32,18 @@ cp .env.example .env
 
 Key variables:
 
-| Variable               | Purpose                                                    |
-| ---------------------- | ---------------------------------------------------------- |
-| `SITE_URL`             | Your production URL (e.g., `https://myblog.com`)           |
-| `BASE_PATH`            | Set to `/<repo-name>` for GitHub Pages, blank otherwise    |
-| `PUBLIC_GITHUB_HANDLE` | Shows GitHub icon in sidebar                               |
+| Variable                 | Purpose                                                    |
+| ------------------------ | ---------------------------------------------------------- |
+| `SITE_URL`               | Your production URL (e.g., `https://myblog.com`)           |
+| `BASE_PATH`              | Set to `/<repo-name>` for GitHub Pages, blank otherwise    |
+| `PUBLIC_CODEBERG_HANDLE` | Shows Codeberg icon in sidebar                             |
 | `PUBLIC_MASTODON_*`      | Enable Mastodon comments and set the instance/profile URLs |
 
 ## Writing posts
 
 Create Markdown files in `src/content/posts/en/`:
 
-```markdown
+```
 ---
 title: 'My Post Title'
 description: 'A brief description for SEO and listings.'
@@ -89,14 +89,12 @@ import Callout from '../../components/Callout.astro';
 
 ## Deploy
 
-Push to `main` on GitHub. The included workflow builds and deploys to GitHub Pages automatically.
+Push to your repository and run your deployment workflow to publish the site.
 
-For custom domains, set `SITE_URL` in your repository's environment variables under **Settings → Environments → github-pages**.
+For custom domains, set `SITE_URL` in your deployment environment variables.
 
 ## Learn more
 
-- [Full documentation](https://github.com/kannansuresh/chirping-astro)
-- [Live demo](https://kannansuresh.github.io/chirping-astro)
 - [Astro docs](https://docs.astro.build)
 
 ---

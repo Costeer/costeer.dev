@@ -2,6 +2,7 @@
 import '../styles/global.css';
 
 import { Font } from 'astro:assets';
+import { ClientRouter } from 'astro:transitions';
 import Sidebar from '../components/Sidebar.astro';
 import Topbar from '../components/Topbar.astro';
 import Footer from '../components/Footer.astro';
@@ -9,9 +10,8 @@ import Panel from '../components/Panel.astro';
 import SEO from '../components/SEO.astro';
 import BackToTop from '../components/islands/BackToTop.astro';
 import LenisSmoothScroll from '../components/islands/LenisSmoothScroll.astro';
-import { ClientRouter } from 'astro:transitions';
 import faviconImg from '../assets/images/site/favicon.svg';
-import { SITE, type Locale } from '../config';
+import { type Locale } from '../config';
 import { detectLocale, htmlLang, useTranslations, stripLocale, withBase } from '../i18n/utils';
 import { buildSeo, type SeoMeta } from '../utils/seo';
 
@@ -29,6 +29,8 @@ interface Props {
   hidePanel?: boolean;
   /** Constrain main content width (used by Pages like About/404). */
   narrow?: boolean;
+  /** Emit JetBrains Mono font faces for routes with visible code or keyboard-heavy UI. */
+  loadMono?: boolean;
   /** Breadcrumb segments shown in the topbar. */
   crumbs?: Array<{ label: string; href?: string }>;
   /** Pre-built SEO meta override. */
@@ -51,6 +53,7 @@ const {
   tags,
   hidePanel = false,
   narrow = false,
+  loadMono = false,
   crumbs = [],
   seo,
   availableLocales,
@@ -76,6 +79,7 @@ const meta: SeoMeta =
     tags,
     availableLocales,
   });
+const siteBase = (import.meta.env.BASE_URL ?? '/').replace(/\/+$/, '');
 ---
 
 <!doctype html>
@@ -85,46 +89,300 @@ const meta: SeoMeta =
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f7f8" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1b1b1e" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#312f3b" />
     <link rel="icon" type="image/svg+xml" href={withBase(faviconImg.src)} />
-    <link
-      rel="alternate"
-      type="application/rss+xml"
-      title={`${SITE.title} (EN)`}
-      href={withBase('/rss.xml')}
-    />
-    <link
-      rel="alternate"
-      type="application/rss+xml"
-      title={`${SITE.title} (DE)`}
-      href={withBase('/de/rss.xml')}
-    />
     <SEO meta={meta} />
+    <ClientRouter fallback="swap" />
     {/* Custom fonts configured via Astro Fonts API */}
-    <Font cssVariable="--font-lexend" />
-    <Font cssVariable="--font-opendyslexic" />
-    <Font cssVariable="--font-lato" />
-    <Font cssVariable="--font-jetbrains-mono" preload />
-    <ClientRouter />
+    <Font cssVariable="--font-lexend" preload={[{ weight: 400 }]} />
+    {loadMono && <Font cssVariable="--font-jetbrains-mono" />}
     <LenisSmoothScroll />
     {/* Apply persisted theme as early as possible to avoid FOUC. */}
     <script is:inline>
       (function () {
-        function applyTheme() {
+        function resolveTheme() {
           try {
             var stored = localStorage.getItem('theme');
             var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             var valid = stored === 'chirpy-dark' || stored === 'chirpy-light';
             var theme = valid ? stored : prefersDark ? 'chirpy-dark' : 'chirpy-light';
             if (!valid && stored) localStorage.setItem('theme', theme);
-            document.documentElement.setAttribute('data-theme', theme);
+            return theme;
           } catch {
-            /* ignore */
+            return 'chirpy-light';
           }
         }
-        applyTheme();
-        // Re-apply after view transitions swap in a fresh <html data-theme>.
-        document.addEventListener('astro:after-swap', applyTheme);
+        function applyTheme(root) {
+          root.setAttribute('data-theme', resolveTheme());
+        }
+        function applyA11yPreferences() {
+          try {
+            var reduceMotion = localStorage.getItem('a11y-reduce-motion') === 'true';
+            document.documentElement.dataset.a11yReduceMotion = reduceMotion ? 'true' : 'false';
+            document.documentElement.dataset.a11yContrast =
+              localStorage.getItem('a11y-high-contrast') === 'true' ? 'high' : 'default';
+            document.documentElement.dataset.a11yUnderline =
+              localStorage.getItem('a11y-underline-links') === 'true' ? 'true' : 'false';
+            document.documentElement.dataset.a11yFontSize =
+              localStorage.getItem('a11y-font-size') || 'default';
+            document.documentElement.dataset.a11yFont =
+              localStorage.getItem('a11y-font') || 'lexend';
+          } catch {
+            document.documentElement.dataset.a11yReduceMotion = 'false';
+            document.documentElement.dataset.a11yContrast = 'default';
+            document.documentElement.dataset.a11yUnderline = 'false';
+            document.documentElement.dataset.a11yFontSize = 'default';
+            document.documentElement.dataset.a11yFont = 'lexend';
+          }
+        }
+        applyTheme(document.documentElement);
+        applyA11yPreferences();
+        document.addEventListener('astro:before-swap', function (event) {
+          if (event.newDocument) applyTheme(event.newDocument.documentElement);
+        });
+      })();
+    </script>
+    <script is:inline define:vars={{ siteBase }}>
+      (() => {
+        const noticeKey = 'chirpy-locale-fallback-notice';
+
+        const stripBase = (pathname) => {
+          if (!siteBase) return pathname;
+          if (pathname === siteBase) return '/';
+          if (pathname.startsWith(siteBase + '/')) return pathname.slice(siteBase.length);
+          return pathname;
+        };
+
+        const isGermanPath = (pathname) => {
+          const path = stripBase(pathname);
+          return path === '/de' || path.startsWith('/de/');
+        };
+
+        const isEnglishPostPath = (pathname) => stripBase(pathname).startsWith('/posts/');
+
+        document.addEventListener(
+          'click',
+          (event) => {
+            if (
+              event.defaultPrevented ||
+              event.button !== 0 ||
+              event.metaKey ||
+              event.ctrlKey ||
+              event.shiftKey ||
+              event.altKey
+            ) {
+              return;
+            }
+
+            const target = event.target;
+            if (!(target instanceof Element)) return;
+
+            const anchor = target.closest('a[href]');
+            if (!(anchor instanceof HTMLAnchorElement)) return;
+
+            const href = anchor.getAttribute('href');
+            if (!href || href.startsWith('#')) return;
+
+            let url;
+            try {
+              url = new URL(anchor.href, window.location.href);
+            } catch {
+              return;
+            }
+
+            if (url.origin !== window.location.origin) return;
+            if (!isGermanPath(window.location.pathname) || !isEnglishPostPath(url.pathname)) return;
+
+            sessionStorage.setItem(
+              noticeKey,
+              JSON.stringify({
+                sourceLocale: 'de',
+                fromPath: `${window.location.pathname}${window.location.search}${window.location.hash}`,
+                toPath: url.pathname,
+                ts: Date.now(),
+              }),
+            );
+          },
+          true,
+        );
+      })();
+    </script>
+    <script is:inline>
+      window.__chirpyTranslations = undefined;
+    </script>
+    <script is:inline>
+      (() => {
+        if (window.__chirpyInstantPagePreload) return;
+        window.__chirpyInstantPagePreload = true;
+
+        const prefetched = new Set();
+        let preloadTimer = 0;
+
+        const connection =
+          navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        const shouldAvoidPreload =
+          connection?.saveData === true || /(^|-)2g$/.test(connection?.effectiveType || '');
+
+        const isPreloadable = (anchor, url) => {
+          if (shouldAvoidPreload) return false;
+          if (url.origin !== window.location.origin) return false;
+          if (url.pathname === window.location.pathname && url.search === window.location.search) {
+            return false;
+          }
+          if (anchor.hasAttribute('download')) return false;
+          if (anchor.dataset.noInstant !== undefined) return false;
+          if (anchor.target && anchor.target.toLowerCase() !== '_self') return false;
+          if (url.protocol !== 'http:' && url.protocol !== 'https:') return false;
+
+          return true;
+        };
+
+        const preload = (url) => {
+          const href = url.href;
+          if (prefetched.has(href)) return;
+          prefetched.add(href);
+
+          const link = document.createElement('link');
+          link.rel = 'prefetch';
+          link.href = href;
+          link.as = 'document';
+          document.head.appendChild(link);
+        };
+
+        const schedulePreload = (anchor) => {
+          let url;
+          try {
+            url = new URL(anchor.href, window.location.href);
+          } catch {
+            return;
+          }
+
+          if (!isPreloadable(anchor, url)) return;
+
+          window.clearTimeout(preloadTimer);
+          preloadTimer = window.setTimeout(() => preload(url), 65);
+        };
+
+        document.addEventListener(
+          'pointerover',
+          (event) => {
+            if (event.pointerType && event.pointerType !== 'mouse') return;
+
+            const target = event.target;
+            if (!(target instanceof Element)) return;
+
+            const anchor = target.closest('a[href]');
+            if (!(anchor instanceof HTMLAnchorElement)) return;
+
+            schedulePreload(anchor);
+          },
+          { passive: true },
+        );
+
+        document.addEventListener(
+          'focusin',
+          (event) => {
+            const target = event.target;
+            if (!(target instanceof HTMLAnchorElement)) return;
+
+            schedulePreload(target);
+          },
+          { passive: true },
+        );
+      })();
+    </script>
+    <script is:inline>
+      (() => {
+        if (window.__chirpyPostCardTransition) return;
+        window.__chirpyPostCardTransition = true;
+
+        const postTransitionParts = [
+          ['[data-post-card-title]', 'chirpy-post-title'],
+          ['[data-post-card-description]', 'chirpy-post-description'],
+          ['[data-post-card-date]', 'chirpy-post-date'],
+          ['[data-post-card-categories]', 'chirpy-post-categories'],
+          ['[data-post-card-tags]', 'chirpy-post-tags'],
+        ];
+
+        const clearPostCardTransitionNames = () => {
+          document
+            .querySelectorAll('[data-post-transition-part][style*="view-transition-name"]')
+            .forEach((part) => {
+              if (part instanceof HTMLElement) part.style.viewTransitionName = '';
+            });
+        };
+
+        document.addEventListener(
+          'click',
+          (event) => {
+            if (
+              event.defaultPrevented ||
+              event.button !== 0 ||
+              event.metaKey ||
+              event.ctrlKey ||
+              event.shiftKey ||
+              event.altKey
+            ) {
+              return;
+            }
+
+            const target = event.target;
+            if (!(target instanceof Element)) return;
+
+            const link = target.closest('[data-post-card-link]');
+            if (!(link instanceof HTMLAnchorElement)) return;
+            if (link.target && link.target.toLowerCase() !== '_self') return;
+
+            let url;
+            try {
+              url = new URL(link.href, window.location.href);
+            } catch {
+              return;
+            }
+
+            if (url.origin !== window.location.origin) return;
+
+            clearPostCardTransitionNames();
+            postTransitionParts.forEach(([selector, name]) => {
+              const part = link.querySelector(selector);
+              if (part instanceof HTMLElement) part.style.viewTransitionName = name;
+            });
+          },
+          true,
+        );
+
+        document.addEventListener('astro:after-swap', clearPostCardTransitionNames);
+        document.addEventListener('astro:page-load', clearPostCardTransitionNames);
+      })();
+    </script>
+    <script is:inline>
+      (() => {
+        if (window.__chirpyInstantRouteScroll) return;
+        window.__chirpyInstantRouteScroll = true;
+
+        let clearTimer = 0;
+
+        const enableInstantRouteScroll = () => {
+          window.clearTimeout(clearTimer);
+          document.documentElement.dataset.routeScrollInstant = 'true';
+        };
+
+        const enableInstantRouteScrollForSwap = (event) => {
+          enableInstantRouteScroll();
+          event.newDocument?.documentElement?.setAttribute('data-route-scroll-instant', 'true');
+        };
+
+        const disableInstantRouteScroll = () => {
+          window.clearTimeout(clearTimer);
+          clearTimer = window.setTimeout(() => {
+            delete document.documentElement.dataset.routeScrollInstant;
+          }, 80);
+        };
+
+        window.addEventListener('popstate', enableInstantRouteScroll, { capture: true });
+        document.addEventListener('astro:before-preparation', enableInstantRouteScroll);
+        document.addEventListener('astro:before-swap', enableInstantRouteScrollForSwap);
+        document.addEventListener('astro:after-swap', disableInstantRouteScroll);
       })();
     </script>
   </head>
@@ -144,11 +402,15 @@ const meta: SeoMeta =
         <Topbar locale={locale} crumbs={crumbs} availableLocales={availableLocales} />
 
         <div class="flex flex-1 gap-10">
-          <div class="flex min-w-0 flex-1 flex-col">
+          <div class="chirpy-content-column flex min-w-0 flex-1 flex-col">
             <main
               id="main"
+              data-pagefind-body
               aria-label="Main Content"
-              class:list={['min-w-0 flex-1 py-6 lg:pr-2', narrow ? 'mx-auto w-full max-w-3xl' : '']}
+              class:list={[
+                'min-w-0 flex-1 pt-3 pb-6 lg:pr-2',
+                narrow ? 'mx-auto w-full max-w-3xl' : '',
+              ]}
             >
               <slot />
             </main>

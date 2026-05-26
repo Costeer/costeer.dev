@@ -15,6 +15,8 @@ export function getStaticPaths() {
 const { locale } = Astro.props;
 const t = useTranslations(locale);
 const tags = await getTagsWithCount(locale);
+const tagHue = (tag: string) =>
+  [...tag].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) % 360, 0);
 ---
 
 <BaseLayout
@@ -22,24 +24,30 @@ const tags = await getTagsWithCount(locale);
   pathWithoutLocale="/tags/"
   crumbs={[{ label: t('tags.title') }]}
 >
-  <header class="mb-6">
-    <h1 class="text-3xl font-bold tracking-tight">{t('tags.title')}</h1>
-  </header>
-  {
-    tags.length === 0 ? (
-      <p class="text-base-content">{t('tags.empty')}</p>
-    ) : (
-      <ul class="flex flex-wrap gap-2">
-        {tags.map((tag) => (
-          <li>
-            <a href={tagPath(locale, tag.name)} class="post-tag gap-1">
-              <Icon name="lucide:tag" width={12} height={12} />
-              {tag.name}
-              <span>{tag.count}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    )
-  }
+  <section class="px-1 pt-3 pb-6 sm:px-2 sm:pt-4 sm:pb-8">
+    <header class="chirpy-page-header mb-6">
+      <h1 class="text-3xl font-bold tracking-tight">{t('tags.title')}</h1>
+    </header>
+    {
+      tags.length === 0 ? (
+        <p class="text-base-content">{t('tags.empty')}</p>
+      ) : (
+        <ul class="flex min-w-0 flex-wrap gap-2">
+          {tags.map((tag) => (
+            <li class="min-w-0">
+              <a
+                href={tagPath(locale, tag.name)}
+                class="post-tag max-w-full gap-1"
+                style={`--tag-hue: ${tagHue(tag.name)}`}
+              >
+                <Icon name="lucide:tag" width={12} height={12} />
+                <span class="min-w-0 truncate">{tag.name}</span>
+                <span class="shrink-0">{tag.count}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
 </BaseLayout>

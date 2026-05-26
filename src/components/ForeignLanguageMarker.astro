@@ -1,0 +1,54 @@
+---
+import type { Locale } from '../config';
+
+interface Props {
+  locale: Locale;
+  lang: Locale;
+  context?: 'card' | 'inline';
+}
+
+const { locale, lang, context = 'card' } = Astro.props;
+
+const requestedVariant = Astro.url.searchParams.get('foreign-lang-marker');
+const allowedVariants = ['code', 'label', 'note'] as const;
+type MarkerVariant = (typeof allowedVariants)[number];
+const variant: MarkerVariant = allowedVariants.includes(requestedVariant as MarkerVariant)
+  ? (requestedVariant as MarkerVariant)
+  : 'label';
+
+const markerCopy = {
+  en: {
+    code: 'EN',
+    short: 'English',
+    note: 'In English',
+  },
+  de: {
+    code: 'DE',
+    short: 'Deutsch',
+    note: 'Auf Deutsch',
+  },
+} as const;
+
+const copy = markerCopy[lang];
+const title =
+  lang === 'en'
+    ? locale === 'de'
+      ? 'Auf Englisch geschrieben'
+      : 'Written in English'
+    : locale === 'de'
+      ? 'Auf Deutsch geschrieben'
+      : 'Written in German';
+---
+
+<span
+  class:list={[
+    'language-marker',
+    `language-marker--${variant}`,
+    context === 'inline' ? 'language-marker--inline' : 'language-marker--card',
+  ]}
+  lang={lang}
+  title={title}
+>
+  {variant === 'code' ? copy.code : variant === 'label' ? copy.short : copy.note}
+  {(variant === 'code' || variant === 'label') && <span class="sr-only">, {title}</span>}
+</span>

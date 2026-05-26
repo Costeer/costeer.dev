@@ -32,33 +32,60 @@ const t = useTranslations(locale);
     <p class="text-base-content mb-2 text-sm font-semibold">{t('a11y.menu')}</p>
 
     <div class="space-y-1">
-      <label class="hover:bg-base-200 flex cursor-pointer items-center justify-between gap-3 px-2 py-2 text-sm">
+      <label
+        class="hover:bg-base-200 flex cursor-pointer items-center justify-between gap-3 px-2 py-2 text-sm"
+      >
         <span>
           <span class="text-base-content block font-medium">{t('a11y.smoothScroll')}</span>
           <span class="text-base-content block text-xs">{t('a11y.smoothScrollHint')}</span>
         </span>
-        <input type="checkbox" class="toggle toggle-primary toggle-sm a11y-toggle-round !rounded-full" data-a11y-toggle-setting="smoothScroll" />
+        <input
+          type="checkbox"
+          class="toggle toggle-sm a11y-toggle-round !rounded-full"
+          data-a11y-toggle-setting="smoothScroll"
+        />
       </label>
 
-      <label class="hover:bg-base-200 flex cursor-pointer items-center justify-between gap-3 px-2 py-2 text-sm">
+      <label
+        class="hover:bg-base-200 flex cursor-pointer items-center justify-between gap-3 px-2 py-2 text-sm"
+      >
         <span class="text-base-content font-medium">{t('a11y.reduceMotion')}</span>
-        <input type="checkbox" class="toggle toggle-primary toggle-sm a11y-toggle-round !rounded-full" data-a11y-toggle-setting="reduceMotion" />
+        <input
+          type="checkbox"
+          class="toggle toggle-sm a11y-toggle-round !rounded-full"
+          data-a11y-toggle-setting="reduceMotion"
+        />
       </label>
 
-      <label class="hover:bg-base-200 flex cursor-pointer items-center justify-between gap-3 px-2 py-2 text-sm">
+      <label
+        class="hover:bg-base-200 flex cursor-pointer items-center justify-between gap-3 px-2 py-2 text-sm"
+      >
         <span class="text-base-content font-medium">{t('a11y.highContrast')}</span>
-        <input type="checkbox" class="toggle toggle-primary toggle-sm a11y-toggle-round !rounded-full" data-a11y-toggle-setting="highContrast" />
+        <input
+          type="checkbox"
+          class="toggle toggle-sm a11y-toggle-round !rounded-full"
+          data-a11y-toggle-setting="highContrast"
+        />
       </label>
 
-      <label class="hover:bg-base-200 flex cursor-pointer items-center justify-between gap-3 px-2 py-2 text-sm">
+      <label
+        class="hover:bg-base-200 flex cursor-pointer items-center justify-between gap-3 px-2 py-2 text-sm"
+      >
         <span class="text-base-content font-medium">{t('a11y.underlineLinks')}</span>
-        <input type="checkbox" class="toggle toggle-primary toggle-sm a11y-toggle-round !rounded-full" data-a11y-toggle-setting="underlineLinks" />
+        <input
+          type="checkbox"
+          class="toggle toggle-sm a11y-toggle-round !rounded-full"
+          data-a11y-toggle-setting="underlineLinks"
+        />
       </label>
     </div>
 
     <label class="mt-3 block px-2 text-sm">
       <span class="text-base-content mb-1 block font-medium">{t('a11y.fontSize')}</span>
-      <select class="select select-bordered select-sm w-full text-center text-center-last" data-a11y-select-setting="fontSize">
+      <select
+        class="select select-bordered select-sm text-center-last w-full text-center"
+        data-a11y-select-setting="fontSize"
+      >
         <option value="default">{t('a11y.default')}</option>
         <option value="large">{t('a11y.large')}</option>
         <option value="xlarge">{t('a11y.extraLarge')}</option>
@@ -67,7 +94,10 @@ const t = useTranslations(locale);
 
     <label class="mt-3 block px-2 text-sm">
       <span class="text-base-content mb-1 block font-medium">{t('a11y.font')}</span>
-      <select class="select select-bordered select-sm w-full text-center text-center-last" data-a11y-select-setting="font">
+      <select
+        class="select select-bordered select-sm text-center-last w-full text-center"
+        data-a11y-select-setting="font"
+      >
         <option value="lexend">Lexend</option>
         <option value="opendyslexic">OpenDyslexic</option>
         <option value="serif">{t('a11y.serif')}</option>
@@ -87,8 +117,24 @@ const t = useTranslations(locale);
     font: 'a11y-font',
   } as const;
 
+  function readStorage(key: string) {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  }
+
+  function writeStorage(key: string, value: string) {
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      /* ignore */
+    }
+  }
+
   function storedBool(key: string, fallback = false) {
-    const value = localStorage.getItem(key);
+    const value = readStorage(key);
     if (value == null) return fallback;
     return value === 'true';
   }
@@ -96,7 +142,37 @@ const t = useTranslations(locale);
   function smoothScrollEnabled() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
     if (storedBool(KEYS.reduceMotion)) return false;
-    return localStorage.getItem(KEYS.smoothScroll) !== 'false';
+    return readStorage(KEYS.smoothScroll) === 'true';
+  }
+
+  async function ensureOpenDyslexicFont() {
+    if (document.getElementById('opendyslexic-font-face')) return;
+
+    const [{ default: openDyslexicRegularUrl }, { default: openDyslexicBoldUrl }] =
+      await Promise.all([
+        import('@fontsource/opendyslexic/files/opendyslexic-latin-400-normal.woff2?url'),
+        import('@fontsource/opendyslexic/files/opendyslexic-latin-700-normal.woff2?url'),
+      ]);
+
+    const style = document.createElement('style');
+    style.id = 'opendyslexic-font-face';
+    style.textContent = `
+      @font-face {
+        font-family: 'OpenDyslexic';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url("${openDyslexicRegularUrl}") format("woff2");
+      }
+      @font-face {
+        font-family: 'OpenDyslexic';
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url("${openDyslexicBoldUrl}") format("woff2");
+      }
+    `;
+    document.head.append(style);
   }
 
   function applyA11ySettings() {
@@ -104,8 +180,10 @@ const t = useTranslations(locale);
     root.dataset.a11yReduceMotion = storedBool(KEYS.reduceMotion) ? 'true' : 'false';
     root.dataset.a11yContrast = storedBool(KEYS.highContrast) ? 'high' : 'default';
     root.dataset.a11yUnderline = storedBool(KEYS.underlineLinks) ? 'true' : 'false';
-    root.dataset.a11yFontSize = localStorage.getItem(KEYS.fontSize) || 'default';
-    root.dataset.a11yFont = localStorage.getItem(KEYS.font) || 'lexend';
+    root.dataset.a11yFontSize = readStorage(KEYS.fontSize) || 'default';
+    const font = readStorage(KEYS.font) || 'lexend';
+    root.dataset.a11yFont = font;
+    if (font === 'opendyslexic') void ensureOpenDyslexicFont();
   }
 
   function syncControls() {
@@ -119,25 +197,30 @@ const t = useTranslations(locale);
     });
     document.querySelectorAll<HTMLSelectElement>('[data-a11y-select-setting]').forEach((select) => {
       const setting = select.dataset.a11ySelectSetting;
-      if (setting === 'fontSize') select.value = localStorage.getItem(KEYS.fontSize) || 'default';
-      if (setting === 'font') select.value = localStorage.getItem(KEYS.font) || 'lexend';
+      if (setting === 'fontSize') select.value = readStorage(KEYS.fontSize) || 'default';
+      if (setting === 'font') select.value = readStorage(KEYS.font) || 'lexend';
     });
   }
 
   function dispatchSmoothScrollChange() {
     document.dispatchEvent(
-      new CustomEvent('smooth-scroll-preference-change', { detail: { enabled: smoothScrollEnabled() } }),
+      new CustomEvent('smooth-scroll-preference-change', {
+        detail: { enabled: smoothScrollEnabled() },
+      }),
     );
   }
 
+  let accessibilityMenuCleanup: AbortController | undefined;
+
   function setupAccessibilityMenu() {
+    accessibilityMenuCleanup?.abort();
+    accessibilityMenuCleanup = new AbortController();
+    const { signal } = accessibilityMenuCleanup;
+
     applyA11ySettings();
     document.querySelectorAll<HTMLElement>('[data-a11y-menu]').forEach((menu) => {
-      if (menu.dataset.bound === 'true') return;
-      menu.dataset.bound = 'true';
-
-      const button = menu.querySelector<HTMLButtonElement>('[data-a11y-toggle]');
-      const panel = menu.querySelector<HTMLElement>('[data-a11y-panel]');
+      const button = menu.querySelector('[data-a11y-toggle]');
+      const panel = menu.querySelector('[data-a11y-panel]');
       if (!button || !panel) return;
 
       const close = () => {
@@ -145,49 +228,76 @@ const t = useTranslations(locale);
         button.setAttribute('aria-expanded', 'false');
       };
 
-      button.addEventListener('click', () => {
-        const opening = panel.classList.contains('hidden');
-        document.querySelectorAll<HTMLElement>('[data-a11y-panel]').forEach((p) => p.classList.add('hidden'));
-        document.querySelectorAll<HTMLButtonElement>('[data-a11y-toggle]').forEach((b) =>
-          b.setAttribute('aria-expanded', 'false'),
-        );
-        panel.classList.toggle('hidden', !opening);
-        button.setAttribute('aria-expanded', String(opening));
-      });
+      button.addEventListener(
+        'click',
+        () => {
+          const opening = panel.classList.contains('hidden');
+          document
+            .querySelectorAll<HTMLElement>('[data-a11y-panel]')
+            .forEach((p) => p.classList.add('hidden'));
+          document
+            .querySelectorAll<HTMLButtonElement>('[data-a11y-toggle]')
+            .forEach((b) => b.setAttribute('aria-expanded', 'false'));
+          panel.classList.toggle('hidden', !opening);
+          button.setAttribute('aria-expanded', String(opening));
+        },
+        { signal },
+      );
 
       menu.querySelectorAll<HTMLInputElement>('[data-a11y-toggle-setting]').forEach((input) => {
-        input.addEventListener('change', () => {
-          const setting = input.dataset.a11yToggleSetting;
-          if (setting === 'smoothScroll') localStorage.setItem(KEYS.smoothScroll, input.checked ? 'true' : 'false');
-          if (setting === 'reduceMotion') localStorage.setItem(KEYS.reduceMotion, input.checked ? 'true' : 'false');
-          if (setting === 'highContrast') localStorage.setItem(KEYS.highContrast, input.checked ? 'true' : 'false');
-          if (setting === 'underlineLinks') localStorage.setItem(KEYS.underlineLinks, input.checked ? 'true' : 'false');
-          syncControls();
-          dispatchSmoothScrollChange();
-        });
+        input.addEventListener(
+          'change',
+          () => {
+            const setting = input.dataset.a11yToggleSetting;
+            if (setting === 'smoothScroll')
+              writeStorage(KEYS.smoothScroll, input.checked ? 'true' : 'false');
+            if (setting === 'reduceMotion')
+              writeStorage(KEYS.reduceMotion, input.checked ? 'true' : 'false');
+            if (setting === 'highContrast')
+              writeStorage(KEYS.highContrast, input.checked ? 'true' : 'false');
+            if (setting === 'underlineLinks')
+              writeStorage(KEYS.underlineLinks, input.checked ? 'true' : 'false');
+            syncControls();
+            dispatchSmoothScrollChange();
+          },
+          { signal },
+        );
       });
 
       menu.querySelectorAll<HTMLSelectElement>('[data-a11y-select-setting]').forEach((select) => {
-        select.addEventListener('change', () => {
-          const setting = select.dataset.a11ySelectSetting;
-          if (setting === 'fontSize') localStorage.setItem(KEYS.fontSize, select.value);
-          if (setting === 'font') localStorage.setItem(KEYS.font, select.value);
-          syncControls();
-        });
+        select.addEventListener(
+          'change',
+          () => {
+            const setting = select.dataset.a11ySelectSetting;
+            if (setting === 'fontSize') writeStorage(KEYS.fontSize, select.value);
+            if (setting === 'font') writeStorage(KEYS.font, select.value);
+            syncControls();
+          },
+          { signal },
+        );
       });
 
-      document.addEventListener('click', (event) => {
-        if (!menu.contains(event.target as Node)) close();
-      });
-      document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') close();
-      });
+      document.addEventListener(
+        'click',
+        (event) => {
+          if (!menu.contains(event.target as Node)) close();
+        },
+        { signal },
+      );
+      document.addEventListener(
+        'keydown',
+        (event) => {
+          if (event.key === 'Escape') close();
+        },
+        { signal },
+      );
     });
 
     syncControls();
   }
 
   applyA11ySettings();
-  document.addEventListener('astro:page-load', setupAccessibilityMenu);
+  setupAccessibilityMenu();
   document.addEventListener('smooth-scroll-preference-change', syncControls);
+  document.addEventListener('astro:page-load', setupAccessibilityMenu);
 </script>

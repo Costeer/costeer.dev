@@ -1,0 +1,280 @@
+@reference './global.css';
+
+@layer components {
+  .prose-chirpy {
+    @apply text-base-content;
+    line-height: 1.75;
+    font-size: 1.0625rem;
+  }
+
+  .prose-chirpy h1,
+  .prose-chirpy h2,
+  .prose-chirpy h3,
+  .prose-chirpy h4 {
+    @apply text-base-content scroll-mt-24 font-semibold tracking-tight;
+  }
+  .prose-chirpy h1 {
+    @apply mt-6 mb-4 text-3xl;
+  }
+  .prose-chirpy h2 {
+    @apply border-base-300 mt-6 mb-4 border-b pb-2 text-2xl;
+  }
+  .prose-chirpy h3 {
+    @apply mt-5 mb-3 text-xl;
+  }
+  .prose-chirpy h4 {
+    @apply mt-4 mb-2 text-lg;
+  }
+  .prose-chirpy p {
+    @apply my-4;
+  }
+  .prose-chirpy a:not(.heading-anchor) {
+    @apply text-primary decoration-primary/30 hover:decoration-primary underline underline-offset-2;
+  }
+  .prose-chirpy a.heading-anchor {
+    @apply text-inherit no-underline;
+  }
+  .prose-chirpy ul {
+    @apply my-4 list-disc pl-6;
+  }
+  .prose-chirpy ol {
+    @apply my-4 list-decimal pl-6;
+  }
+  .prose-chirpy blockquote {
+    @apply border-primary bg-base-200 text-base-content my-6 rounded-none border px-4 py-3 italic;
+  }
+  .prose-chirpy hr {
+    @apply border-base-300 my-10;
+  }
+  .prose-chirpy code:not(pre code) {
+    @apply bg-base-200 text-accent rounded-none px-1.5 py-0.5 font-mono text-[0.92em];
+    font-family: var(--font-mono);
+  }
+  .prose-chirpy pre {
+    @apply border-base-300 relative my-6 overflow-x-auto rounded-none border p-4 text-sm leading-relaxed;
+    font-family: var(--font-mono);
+  }
+  .prose-chirpy pre code {
+    @apply bg-transparent p-0;
+  }
+  .prose-chirpy img {
+    @apply border-base-300 mx-auto my-6 rounded-none border;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .prose-chirpy figure {
+    @apply my-6;
+  }
+  .prose-chirpy figure > img,
+  .prose-chirpy figure > picture > img {
+    @apply mx-auto rounded-none border-0;
+    margin-top: 0;
+    margin-bottom: 0;
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+  .prose-chirpy figcaption {
+    @apply text-base-content mt-2 text-center text-xs italic;
+  }
+
+  .video-embed__frame {
+    @apply relative overflow-hidden rounded-none;
+    padding-bottom: 56.25%;
+    background: var(--color-sidebar-to);
+  }
+  .video-embed__frame > iframe {
+    @apply absolute inset-0 h-full w-full;
+    border: 0;
+  }
+
+  .post-hero {
+    @apply mx-auto;
+    max-width: 100%;
+  }
+  .post-hero__frame {
+    @apply relative overflow-hidden rounded-none;
+    background: var(--color-sidebar-to);
+  }
+  .post-hero__img {
+    @apply block w-full;
+    height: auto;
+    object-fit: cover;
+  }
+  .prose-chirpy table {
+    @apply my-6 w-full border-collapse text-left text-sm;
+  }
+  .prose-chirpy table th,
+  .prose-chirpy table td {
+    @apply border-base-300 border px-3 py-2;
+  }
+  .prose-chirpy table thead {
+    @apply bg-base-200;
+  }
+
+  .callout {
+    @apply my-6 rounded-none border px-4 py-3;
+  }
+  .callout-info {
+    @apply border-info bg-info/10;
+  }
+  .callout-success {
+    @apply border-success bg-success/10;
+  }
+  .callout-warning {
+    @apply border-warning bg-warning/10;
+  }
+  .callout-error {
+    @apply border-error bg-error/10;
+  }
+
+  .prose-chirpy div[role='alert'] + div[role='alert'] {
+    @apply mt-4;
+  }
+
+  .prose-chirpy .expressive-code {
+    @apply my-6;
+  }
+  .prose-chirpy .expressive-code .frame,
+  .prose-chirpy .expressive-code pre,
+  .prose-chirpy .expressive-code code,
+  .prose-chirpy .expressive-code .copy button,
+  .prose-chirpy .expressive-code .copy .feedback {
+    border-radius: 0;
+  }
+  .prose-chirpy .expressive-code pre {
+    background: var(--code-background, var(--ec-codeBg));
+    padding: 0;
+  }
+  .prose-chirpy .expressive-code pre > code {
+    background: transparent;
+    padding: var(--ec-codePadBlk) 0;
+  }
+  [data-theme='chirpy-dark'] .prose-chirpy h2 {
+    border-bottom-color: color-mix(in oklab, var(--color-base-content) 16%, var(--color-base-300));
+  }
+  [data-theme='chirpy-dark'] .prose-chirpy blockquote {
+    background: color-mix(in oklab, var(--color-primary) 8%, var(--color-base-100));
+    border-color: color-mix(in oklab, var(--color-primary) 58%, var(--color-base-300));
+  }
+  [data-theme='chirpy-dark'] .prose-chirpy code:not(pre code),
+  [data-theme='chirpy-dark'] .prose-chirpy :not(pre) > code {
+    background: color-mix(in oklab, var(--color-accent) 10%, var(--color-base-100));
+    color: oklch(88% 0.09 84);
+  }
+  [data-theme='chirpy-dark'] .prose-chirpy pre {
+    border-color: color-mix(in oklab, var(--color-base-content) 16%, var(--color-base-300));
+    box-shadow: inset 0 1px 0 color-mix(in oklab, var(--color-base-content) 5%, transparent);
+  }
+  [data-theme='chirpy-dark'] .callout {
+    background: color-mix(
+      in oklab,
+      var(--alert-bg, var(--color-base-100)) 88%,
+      var(--color-base-200)
+    );
+  }
+  [data-theme='chirpy-dark'] .callout-info {
+    border-color: color-mix(in oklab, var(--color-info) 68%, var(--color-base-300));
+  }
+  [data-theme='chirpy-dark'] .callout-success {
+    border-color: color-mix(in oklab, var(--color-success) 68%, var(--color-base-300));
+  }
+  [data-theme='chirpy-dark'] .callout-warning {
+    border-color: color-mix(in oklab, var(--color-warning) 72%, var(--color-base-300));
+  }
+  [data-theme='chirpy-dark'] .callout-error {
+    border-color: color-mix(in oklab, var(--color-error) 72%, var(--color-base-300));
+  }
+  .prose-chirpy :not(pre) > code {
+    @apply text-primary bg-base-200 rounded-none px-1.5 py-0.5 text-[0.9em] font-medium;
+  }
+
+  .toc ol {
+    border-left: 1px solid color-mix(in oklab, var(--color-base-content) 10%, transparent);
+  }
+  .toc a {
+    @apply text-base-content block py-1 pr-2 pl-3 text-sm transition-colors;
+    position: relative;
+    margin-left: -1px;
+    border-left: 1px solid transparent;
+  }
+  .toc a::before {
+    content: '';
+    position: absolute;
+    inset-block: 0.2rem;
+    left: 0;
+    width: 2px;
+    background: var(--color-primary);
+    opacity: 0;
+    transform: scaleY(0.25);
+    transform-origin: 50% 0%;
+    transition:
+      opacity 160ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .toc a:hover {
+    @apply text-primary;
+  }
+  .toc a[data-active='true'] {
+    @apply text-primary font-semibold;
+  }
+  .toc a[data-active='true']::before {
+    opacity: 1;
+    transform: scaleY(1);
+    animation: toc-active-rail 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .toc .toc-level-3 a {
+    @apply pl-6;
+  }
+  .toc .toc-level-4 a {
+    @apply pl-9;
+  }
+
+  .toc .toc-level-3,
+  .toc .toc-level-4 {
+    display: none;
+  }
+  .toc .toc-level-3[data-section-active='true'],
+  .toc .toc-level-4[data-section-active='true'] {
+    display: list-item;
+    animation: toc-fade-in 180ms ease-out;
+  }
+
+  @keyframes toc-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(-2px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes toc-active-rail {
+    from {
+      opacity: 0;
+      transform: translateY(-0.35rem) scaleY(0.18);
+    }
+    55% {
+      opacity: 1;
+      transform: translateY(0) scaleY(1.12);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scaleY(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toc a::before {
+      transition: none;
+    }
+    .toc a[data-active='true']::before,
+    .toc .toc-level-3[data-section-active='true'],
+    .toc .toc-level-4[data-section-active='true'] {
+      animation: none;
+    }
+  }
+}

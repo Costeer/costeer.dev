@@ -3,7 +3,7 @@ import { SITE } from '~/config';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import PostList from '~/components/PostList.astro';
 import { useTranslations, localizedPath } from '~/i18n/utils';
-import { getPosts, getCategoriesWithCount, slugify } from '~/utils/posts';
+import { getVisiblePosts, getCategoriesWithCount, slugify } from '~/utils/posts';
 
 interface Props {
   categoryName: string;
@@ -28,7 +28,7 @@ export async function getStaticPaths() {
 const { categoryName, locale } = Astro.props as Props;
 const { category } = Astro.params;
 const t = useTranslations(locale);
-const posts = (await getPosts(locale)).filter(
+const posts = (await getVisiblePosts(locale)).filter(
   (p) => p.data.categories && p.data.categories.some((c) => slugify(c) === category),
 );
 ---
@@ -41,7 +41,7 @@ const posts = (await getPosts(locale)).filter(
     { label: categoryName },
   ]}
 >
-  <header class="mb-6">
+  <header class="chirpy-page-header mb-6">
     <p class="text-base-content text-sm tracking-wide uppercase">{t('list.categoryPosts')}</p>
     <h1 class="text-3xl font-bold tracking-tight">{categoryName}</h1>
     <p class="text-base-content mt-1 text-sm">

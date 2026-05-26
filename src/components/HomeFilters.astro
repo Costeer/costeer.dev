@@ -1,0 +1,328 @@
+---
+import type { Post } from '../utils/posts';
+import { useTranslations } from '../i18n/utils';
+import type { Locale } from '../config';
+import { Icon } from 'astro-icon/components';
+import '../styles/home-filters.css';
+
+interface Props {
+  posts: Post[];
+  locale: Locale;
+}
+
+const { posts, locale } = Astro.props;
+const t = useTranslations(locale);
+
+const countBy = (values: string[][]) => {
+  const map = new Map<string, number>();
+  for (const group of values) {
+    for (const value of group) map.set(value, (map.get(value) ?? 0) + 1);
+  }
+  return Array.from(map.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+};
+
+const tags = countBy(posts.map((post) => post.data.tags));
+const categories = countBy(posts.map((post) => post.data.categories));
+---
+
+<section
+  class="home-filters"
+  data-home-filters
+  data-label-no-filters-active={t('home.noFiltersActive')}
+  data-label-show-tag={t('home.showTag')}
+  data-label-hide-tag={t('home.hideTag')}
+  data-label-show-category={t('home.showCategory')}
+  data-label-hide-category={t('home.hideCategory')}
+  data-label-posts={t('home.posts')}
+  aria-label={t('home.filterPosts')}
+>
+  <div class="home-filters__header">
+    <h2 class="home-filters__title">{t('home.recentPosts')}</h2>
+    <button
+      class="home-filters__trigger"
+      type="button"
+      aria-label={t('home.filters')}
+      aria-expanded="false"
+      aria-controls="home-filters-popup"
+      data-filter-popup-trigger
+    >
+      <Icon name="lucide:funnel" width={16} height={16} aria-hidden="true" />
+    </button>
+  </div>
+
+  <div
+    id="home-filters-popup"
+    class="home-filters__popup"
+    role="dialog"
+    aria-label={t('home.filterPosts')}
+    data-filter-popup
+    hidden
+  >
+    <div class="home-filters__row">
+      <div class="home-filter-field">
+        <label for="poster-tag-include">{t('home.includeTag')}</label>
+        <select id="poster-tag-include" data-filter-picker="includeTags">
+          <option value="">{t('home.addTag')}</option>
+          {
+            tags.map((tag) => (
+              <option value={tag.name}>
+                {tag.name} ({tag.count})
+              </option>
+            ))
+          }
+        </select>
+      </div>
+      <div class="home-filter-field">
+        <label for="poster-tag-exclude">{t('home.excludeTag')}</label>
+        <select id="poster-tag-exclude" data-filter-picker="excludeTags">
+          <option value="">{t('home.removeTag')}</option>
+          {
+            tags.map((tag) => (
+              <option value={tag.name}>
+                {tag.name} ({tag.count})
+              </option>
+            ))
+          }
+        </select>
+      </div>
+      <div class="home-filter-field">
+        <label for="poster-category-include">{t('home.includeCategory')}</label>
+        <select id="poster-category-include" data-filter-picker="includeCategories">
+          <option value="">{t('home.addCategory')}</option>
+          {
+            categories.map((category) => (
+              <option value={category.name}>
+                {category.name} ({category.count})
+              </option>
+            ))
+          }
+        </select>
+      </div>
+      <div class="home-filter-field">
+        <label for="poster-category-exclude">{t('home.excludeCategory')}</label>
+        <select id="poster-category-exclude" data-filter-picker="excludeCategories">
+          <option value="">{t('home.removeCategory')}</option>
+          {
+            categories.map((category) => (
+              <option value={category.name}>
+                {category.name} ({category.count})
+              </option>
+            ))
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="home-filters__footer">
+      <div class="home-filters__chips" data-filter-chips></div>
+      <p class="home-filters__count" aria-live="polite" data-filter-count>
+        {posts.length}
+        {t('home.posts')}
+      </p>
+      <button class="home-filters__clear" type="button" data-filter-clear
+        >{t('home.clearAll')}</button
+      >
+    </div>
+  </div>
+</section>
+
+<p class="home-filters__empty" data-filter-empty hidden>{t('home.emptyFilters')}</p>
+
+<script>
+  type FilterKey = 'includeTags' | 'excludeTags' | 'includeCategories' | 'excludeCategories';
+  type FilterToken = { label: string; value: string; key: FilterKey };
+  type LocalIdleDeadline = { didTimeout: boolean; timeRemaining: () => number };
+  // eslint-disable-next-line no-unused-vars
+  type LocalIdleCallback = (_deadline: LocalIdleDeadline) => void;
+  type LocalIdleOptions = { timeout?: number };
+  type WindowWithHomeFilters = Window & {
+    __homeFiltersBoot?: () => void;
+    // eslint-disable-next-line no-unused-vars
+    requestIdleCallback?: (_callback: LocalIdleCallback, _options?: LocalIdleOptions) => number;
+  };
+
+  const state = {
+    includeTags: new Set<string>(),
+    excludeTags: new Set<string>(),
+    includeCategories: new Set<string>(),
+    excludeCategories: new Set<string>(),
+  } satisfies Record<FilterKey, Set<string>>;
+
+  const listKeys: FilterKey[] = [
+    'includeTags',
+    'excludeTags',
+    'includeCategories',
+    'excludeCategories',
+  ];
+  const i18n = (root: HTMLElement) => root.dataset;
+  const labels = (root: HTMLElement): Record<FilterKey, string> => ({
+    includeTags: i18n(root).labelShowTag ?? 'Show tag',
+    excludeTags: i18n(root).labelHideTag ?? 'Hide tag',
+    includeCategories: i18n(root).labelShowCategory ?? 'Show category',
+    excludeCategories: i18n(root).labelHideCategory ?? 'Hide category',
+  });
+
+  const splitValues = (value: string | undefined) =>
+    value ? value.split('|').filter(Boolean) : [];
+  const intersects = (selected: Set<string>, values: string[]) =>
+    selected.size === 0 || values.some((value) => selected.has(value));
+  const blockedBy = (selected: Set<string>, values: string[]) =>
+    selected.size > 0 && values.some((value) => selected.has(value));
+
+  const hasActiveFilters = () => listKeys.some((key) => state[key].size > 0);
+
+  const renderTokens = (root: HTMLElement, container: Element | null, removable: boolean) => {
+    if (!container) return;
+    const tokens: FilterToken[] = [];
+    const labelMap = labels(root);
+    for (const key of listKeys) {
+      state[key].forEach((value) => tokens.push({ label: labelMap[key], value, key }));
+    }
+
+    container.replaceChildren();
+    if (tokens.length === 0) {
+      const span = document.createElement('span');
+      span.className = 'home-filter-chip home-filter-chip--muted';
+      span.textContent = i18n(root).labelNoFiltersActive ?? 'No filters active';
+      container.append(span);
+      return;
+    }
+
+    for (const token of tokens) {
+      const chip = document.createElement(removable && token.key ? 'button' : 'span');
+      chip.className = 'home-filter-chip';
+      chip.textContent = `${token.label}: ${token.value}`;
+      if (removable && token.key && chip instanceof HTMLButtonElement) {
+        chip.type = 'button';
+        chip.dataset.filterRemoveKey = token.key;
+        chip.dataset.filterRemoveValue = token.value;
+        chip.setAttribute('aria-label', `Remove ${token.label} ${token.value}`);
+      }
+      container.append(chip);
+    }
+  };
+
+  const getFilterItems = () => {
+    return Array.from(document.querySelectorAll<HTMLElement>('[data-post-filter-item="true"]'));
+  };
+
+  const applyFilters = (root: HTMLElement) => {
+    const items = getFilterItems();
+    let visible = 0;
+
+    for (const item of items) {
+      const tags = splitValues(item.dataset.postTags);
+      const categories = splitValues(item.dataset.postCategories);
+      const matches =
+        intersects(state.includeTags, tags) &&
+        intersects(state.includeCategories, categories) &&
+        !blockedBy(state.excludeTags, tags) &&
+        !blockedBy(state.excludeCategories, categories);
+      item.hidden = !matches;
+      if (matches) visible += 1;
+    }
+
+    const count = root.querySelector('[data-filter-count]');
+    if (count)
+      count.textContent = `${visible} of ${items.length} ${i18n(root).labelPosts ?? 'posts'}`;
+    const empty = document.querySelector<HTMLElement>('[data-filter-empty]');
+    if (empty) empty.hidden = visible !== 0;
+    renderTokens(root, root.querySelector('[data-filter-chips]'), true);
+  };
+
+  const scheduleIdle = (callback: LocalIdleCallback) => {
+    const idleWindow = window as WindowWithHomeFilters;
+    if (idleWindow.requestIdleCallback) {
+      idleWindow.requestIdleCallback(callback, { timeout: 2000 });
+      return;
+    }
+    window.setTimeout(callback, 800);
+  };
+
+  const bootHomeFilters = () => {
+    const root = document.querySelector('[data-home-filters]');
+    if (!(root instanceof HTMLElement)) return;
+    renderTokens(root, root.querySelector('[data-filter-chips]'), true);
+    if (root.dataset.filterBootBound === 'true') {
+      return;
+    }
+    root.dataset.filterBootBound = 'true';
+    const trigger = root.querySelector<HTMLButtonElement>('[data-filter-popup-trigger]');
+    const popup = root.querySelector<HTMLElement>('[data-filter-popup]');
+
+    const setPopupOpen = (open: boolean) => {
+      if (!trigger || !popup) return;
+      popup.hidden = !open;
+      trigger.setAttribute('aria-expanded', String(open));
+      if (!open) {
+        trigger.focus();
+      }
+    };
+
+    const enhanceFilters = () => {
+      if (root.dataset.filterBound === 'true') return;
+      root.dataset.filterBound = 'true';
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && popup && !popup.hidden) setPopupOpen(false);
+      });
+
+      document.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof Node) || !popup || !trigger || popup.hidden) return;
+        if (!popup.contains(target) && !trigger.contains(target)) setPopupOpen(false);
+      });
+
+      root.querySelectorAll<HTMLSelectElement>('[data-filter-picker]').forEach((select) => {
+        select.addEventListener('change', () => {
+          const key = select.dataset.filterPicker as FilterKey | undefined;
+          if (key && select.value) state[key].add(select.value);
+          select.value = '';
+          applyFilters(root);
+        });
+      });
+
+      root.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        const remove = target.closest('[data-filter-remove-key]');
+        if (remove) {
+          const key = (remove as HTMLElement).dataset.filterRemoveKey as FilterKey | undefined;
+          const value = (remove as HTMLElement).dataset.filterRemoveValue;
+          if (key && value) state[key].delete(value);
+          applyFilters(root);
+          return;
+        }
+        if (target.closest('[data-filter-clear]')) {
+          listKeys.forEach((key) => state[key].clear());
+          applyFilters(root);
+        }
+      });
+
+      document.addEventListener('home-feed:loaded', () => {
+        if (hasActiveFilters()) applyFilters(root);
+      });
+    };
+
+    trigger?.addEventListener('click', () => {
+      enhanceFilters();
+      setPopupOpen(trigger.getAttribute('aria-expanded') !== 'true');
+    });
+
+    scheduleIdle(enhanceFilters);
+  };
+
+  const windowWithHomeFilters = window as WindowWithHomeFilters;
+  if (windowWithHomeFilters.__homeFiltersBoot) {
+    document.removeEventListener('DOMContentLoaded', windowWithHomeFilters.__homeFiltersBoot);
+  }
+  windowWithHomeFilters.__homeFiltersBoot = bootHomeFilters;
+  document.addEventListener('DOMContentLoaded', bootHomeFilters);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootHomeFilters, { once: true });
+  } else {
+    bootHomeFilters();
+  }
+</script>

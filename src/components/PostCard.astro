@@ -2,8 +2,12 @@
 import { SITE, type Locale } from '../config';
 import { formatDate, isoDate } from '../i18n/utils';
 import { type Post, postPath, heroImage, shouldShowHero } from '../utils/posts';
+import { getPostStyle, orderedTags, styleProperties, normalizeStyleTag } from '../utils/style-tags';
+import { postReadingDepthLayers, postReadingMinutes } from '../utils/reading-depth';
+import '../styles/post-card.css';
 import SmartImage from './SmartImage.astro';
 import { Icon } from 'astro-icon/components';
+import ForeignLanguageMarker from './ForeignLanguageMarker.astro';
 
 interface Props {
   post: Post;
@@ -12,6 +16,7 @@ interface Props {
   animate?: boolean;
   animationDelay?: string;
   lazyRender?: boolean;
+  showReadingDepth?: boolean;
 }
 
 const {
@@ -21,18 +26,52 @@ const {
   animate = false,
   animationDelay = '0ms',
   lazyRender = false,
+  showReadingDepth = false,
 } = Astro.props;
 const href = postPath(post);
 const heroAsset = heroImage(post);
 const hasImage = Boolean(heroAsset) && shouldShowHero(post);
 const heroAlt = post.data.heroImageAlt ?? '';
 const isDynamicCardHeight = post.data.dynamicPostCardHeight ?? SITE.dynamicPostCardHeight;
+const tagHue = (tag: string) =>
+  [...tag].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) % 360, 0);
+const postStyle = getPostStyle(post);
+const displayTags = orderedTags(post);
+const readingMinutes = postReadingMinutes(post);
+const readingDepthLayers = postReadingDepthLayers(post);
+const isForeignLanguage = post.data.lang !== locale;
+const cardImageWidths = [360, 540, 720, 960];
+const cardImageSizes =
+  '(max-width: 767px) calc(100vw - 2rem), (max-width: 1023px) calc(100vw - 3rem), (max-width: 1279px) calc((100vw - 22.25rem) * 0.416), (max-width: 1439px) 270px, (max-width: 1649px) 330px, 396px';
 ---
 
 <article
-  class:list={['chirpy-card', animate && 'chirpy-card-float-in', lazyRender && 'chirpy-card-lazy']}
-  style={`--chirpy-card-delay: ${animationDelay}`}
+  class:list={[
+    'chirpy-card',
+    postStyle.className,
+    postStyle.definition && 'has-style-tag',
+    showReadingDepth && `reading-depth-${readingDepthLayers}`,
+    lazyRender && 'chirpy-card-lazy',
+  ]}
+  data-card-animate={animate ? 'true' : undefined}
+  data-style-tag={postStyle.tag}
+  data-reading-depth={showReadingDepth ? readingDepthLayers : undefined}
+  data-post-filter-item="true"
+  data-post-date={isoDate(post.data.pubDate)}
+  data-post-tags={post.data.tags.join('|')}
+  data-post-categories={post.data.categories.join('|')}
+  style={`--chirpy-card-delay: ${animationDelay}; ${showReadingDepth ? `--reading-depth-layers: ${readingDepthLayers}; ` : ''}${styleProperties(postStyle)}`}
 >
+  {
+    showReadingDepth && (
+      <>
+        <span class="reading-depth-layer reading-depth-layer--1" aria-hidden="true" />
+        <span class="reading-depth-layer reading-depth-layer--2" aria-hidden="true" />
+        <span class="reading-depth-layer reading-depth-layer--3" aria-hidden="true" />
+        <span class="reading-depth-layer reading-depth-layer--4" aria-hidden="true" />
+      </>
+    )
+  }
   <a
     href={href}
     class:list={[
@@ -40,6 +79,7 @@ const isDynamicCardHeight = post.data.dynamicPostCardHeight ?? SITE.dynamicPostC
       hasImage ? 'has-image' : 'no-image',
       isDynamicCardHeight ? 'dynamic-size' : 'fixed-size',
     ]}
+    data-post-card-link="true"
   >
     {
       hasImage && (
@@ -50,40 +90,50 @@ const isDynamicCardHeight = post.data.dynamicPostCardHeight ?? SITE.dynamicPostC
             class="chirpy-card-image"
             loading={prioritizeLcp ? 'eager' : 'lazy'}
             fetchpriority={prioritizeLcp ? 'high' : 'auto'}
-            widths={[384, 768, 960]}
-            sizes="(max-width: 767px) 100vw, 378px"
-            quality={75}
+            widths={cardImageWidths}
+            sizes={cardImageSizes}
+            quality={70}
           />
         </div>
       )
     }
 
     <div class:list={['chirpy-card-body', hasImage ? '' : 'full']}>
-      <h2 class:list={['chirpy-card-title', hasImage ? '' : 'compact']}>
-        {post.data.title}
-      </h2>
+      <div class="chirpy-card-title-row">
+        <h2
+          class:list={['chirpy-card-title', hasImage ? '' : 'compact']}
+          data-post-card-title
+          data-post-transition-part
+        >
+          {post.data.title}
+        </h2>
+        {
+          isForeignLanguage && (
+            <ForeignLanguageMarker locale={locale} lang={post.data.lang} context="card" />
+          )
+        }
+      </div>
 
       <p
         class:list={[
           'text-base-content text-base',
           hasImage ? 'mt-2 mb-3 line-clamp-2' : 'mt-1 mb-2 line-clamp-3',
         ]}
+        data-post-card-description
+        data-post-transition-part
       >
         {post.data.description}
       </p>
 
-      {post.data.tags.length > 0 && (
-        <div class="mt-3 flex flex-wrap gap-1.5">
-          {post.data.tags.slice(0, 4).map((tag) => (
-            <span class="post-tag">{tag}</span>
-          ))}
-        </div>
-      )}
-
       <div class="text-base-content mt-3 flex items-end justify-between gap-2 text-xs">
         <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <span class="inline-flex items-center gap-1">
+          <span
+            class="inline-flex items-center gap-1"
+            data-post-card-date
+            data-post-transition-part
+          >
             <Icon name="lucide:clock" width={12} height={12} />
+            <span class="sr-only">{readingMinutes} minute read, </span>
             <time datetime={isoDate(post.data.pubDate)}>
               {
                 formatDate(post.data.pubDate, locale, {
@@ -96,9 +146,34 @@ const isDynamicCardHeight = post.data.dynamicPostCardHeight ?? SITE.dynamicPostC
           </span>
           {
             post.data.categories.length > 0 && (
-              <span class="inline-flex items-center gap-1">
+              <span
+                class="inline-flex items-center gap-1"
+                data-post-card-categories
+                data-post-transition-part
+              >
                 <Icon name="lucide:folder" width={12} height={12} />
                 <span>{post.data.categories.join(', ')}</span>
+              </span>
+            )
+          }
+          {
+            displayTags.length > 0 && (
+              <span
+                class="inline-flex flex-wrap items-center gap-1.5"
+                data-post-card-tags
+                data-post-transition-part
+              >
+                {displayTags.slice(0, 4).map((tag) => {
+                  const isStyle = postStyle.definition?.slug === normalizeStyleTag(tag);
+                  return (
+                    <span
+                      class:list={['post-tag', isStyle && 'post-tag--style']}
+                      style={isStyle ? undefined : `--tag-hue: ${tagHue(tag)}`}
+                    >
+                      {tag}
+                    </span>
+                  );
+                })}
               </span>
             )
           }

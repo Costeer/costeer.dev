@@ -12,8 +12,6 @@ const year = new Date().getFullYear();
 const footerLeftText = SITE.footer.leftText?.trim();
 const footerRightText = SITE.footer.rightText?.trim();
 const showPrivacyPolicy = SITE.footer.showPrivacyPolicy ?? SITE.showPrivacyPolicy;
-const showThemeCredits = SITE.footer.showThemeCredits ?? true;
-const shouldRenderRightFooter = Boolean(footerRightText) || showThemeCredits;
 const resolvedLeftText = footerLeftText
   ?.replaceAll('{year}', String(year))
   .replaceAll('{author}', SITE.author.name);
@@ -49,33 +47,9 @@ const resolvedLeftText = footerLeftText
     }
   </p>
   {
-    shouldRenderRightFooter && (
+    footerRightText && (
       <p>
-        {footerRightText ? (
-          <>
-            {footerRightText}
-            {showThemeCredits && (
-              <>
-                {' · '}
-                {t('footer.theme')}{' '}
-                <a href={SITE.footer.themeUrl} rel="noopener" class="hover:text-primary">
-                  {SITE.footer.themeName}
-                </a>
-              </>
-            )}
-          </>
-        ) : (
-          <>
-            {t('footer.poweredBy')}{' '}
-            <a href="https://astro.build" rel="noopener" class="hover:text-primary">
-              Astro
-            </a>{' '}
-            · {t('footer.theme')}{' '}
-            <a href={SITE.footer.themeUrl} rel="noopener" class="hover:text-primary">
-              {SITE.footer.themeName}
-            </a>
-          </>
-        )}
+        {footerRightText}
       </p>
     )
   }

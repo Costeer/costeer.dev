@@ -1,6 +1,6 @@
 ---
 title: 'Erste Schritte'
-description: 'Dein erster Beitrag mit Chirping Astro. Lerne, wie du die Seite konfigurierst, Beiträge schreibst und veröffentlichst.'
+description: 'Dein erster Beitrag auf costeer.dev. Lerne, wie du die Seite konfigurierst, Beiträge schreibst und veröffentlichst.'
 pubDate: 2026-05-03
 tags: [erste-schritte, tutorial]
 categories: [Anleitung]
@@ -9,7 +9,7 @@ pinned: true
 toc: true
 ---
 
-Willkommen auf deinem neuen Blog! Dieser Beispielbeitrag zeigt dir die Grundlagen von **Chirping Astro**.
+Willkommen auf deiner neuen Website. Dieser Beispielbeitrag zeigt dir die Grundlagen dieses Astro-Setups.
 
 ## Seite konfigurieren
 
@@ -30,12 +30,12 @@ cp .env.example .env
 
 Wichtige Variablen:
 
-| Variable               | Zweck                                                       |
-| ---------------------- | ----------------------------------------------------------- |
-| `SITE_URL`             | Produktions-URL, z. B. `https://meinblog.de`                |
-| `BASE_PATH`            | `/<repo-name>` für GitHub Pages, sonst leer                 |
-| `PUBLIC_GITHUB_HANDLE` | Zeigt das GitHub-Icon in der Seitenleiste                   |
-| `PUBLIC_MASTODON_*`    | Aktiviert Mastodon-Kommentare und setzt Instanz/Profil-URLs |
+| Variable                 | Zweck                                                       |
+| ------------------------ | ----------------------------------------------------------- |
+| `SITE_URL`               | Produktions-URL, z. B. `https://meinblog.de`                |
+| `BASE_PATH`              | `/<repo-name>` für GitHub Pages, sonst leer                 |
+| `PUBLIC_CODEBERG_HANDLE` | Zeigt das Codeberg-Icon in der Seitenleiste                 |
+| `PUBLIC_MASTODON_*`      | Aktiviert Mastodon-Kommentare und setzt Instanz/Profil-URLs |
 
 ## Beiträge schreiben
 
@@ -77,6 +77,6 @@ Beiträge werden über das Feld `translationKey` miteinander verknüpft. Erstell
 
 ## Deployment
 
-Push auf `main` bei GitHub. Der enthaltene Workflow baut die Seite und veröffentlicht sie automatisch über GitHub Pages.
+Pushe in dein Repository und starte deinen Deployment-Workflow, um die Seite zu veröffentlichen.
 
-Für eine eigene Domain setzt du `SITE_URL` in den Umgebungsvariablen deines Repositories unter **Settings → Environments → github-pages**.
+Für eine eigene Domain setzt du `SITE_URL` in den Umgebungsvariablen deiner Deployment-Umgebung.

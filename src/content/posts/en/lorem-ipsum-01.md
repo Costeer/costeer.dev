@@ -2,7 +2,8 @@
 title: 'Lorem Ipsum Post 1'
 description: 'A short lorem ipsum placeholder post for testing the homepage blog list animation and layout.'
 pubDate: 2026-04-19
-tags: [lorem, placeholder]
+draft: true
+tags: [css, lorem, placeholder]
 categories: [Demo]
 translationKey: lorem-ipsum-01
 toc: true

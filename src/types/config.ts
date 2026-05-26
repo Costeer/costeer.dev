@@ -25,12 +25,6 @@ export interface SiteConfig {
     rightText?: string;
     /** Whether to show the Privacy Policy link in the footer. */
     showPrivacyPolicy?: boolean;
-    /** Whether to show theme credits in the footer right side. */
-    showThemeCredits?: boolean;
-    /** Theme label text used by the right footer link. */
-    themeName: string;
-    /** Theme repository URL used by the right footer link. */
-    themeUrl: string;
   };
   url: string;
   locales: readonly Locale[];
@@ -51,6 +45,7 @@ export interface SocialLink {
   label: string;
   href: string;
   icon: string;
+  rel?: string;
 }
 
 export interface MastodonCommentsConfig {

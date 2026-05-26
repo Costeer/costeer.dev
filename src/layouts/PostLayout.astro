@@ -1,9 +1,12 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import FallbackLocaleBanner from '../components/FallbackLocaleBanner.astro';
 import SmartImage from '../components/SmartImage.astro';
 import TableOfContents from '../components/islands/TableOfContents.astro';
 import MastodonComments from '../components/islands/MastodonComments.astro';
 import MathStyles from '../components/MathStyles.astro';
+import '../styles/content.css';
+import '../styles/post-article.css';
 import { Icon } from 'astro-icon/components';
 import { MASTODON_COMMENTS, SITE, type Locale } from '../config';
 import { useTranslations, stripLocale, formatDate, isoDate, localizedPath } from '../i18n/utils';
@@ -18,7 +21,9 @@ import {
   heroImage,
   heroImageSrc,
   shouldShowHero,
+  isDemoPost,
 } from '../utils/posts';
+import { getPostStyle, orderedTags, styleProperties, normalizeStyleTag } from '../utils/style-tags';
 import { buildSeo } from '../utils/seo';
 import type { MarkdownHeading } from 'astro';
 
@@ -36,6 +41,7 @@ interface Props {
 const { post, headings, body, locale } = Astro.props;
 const t = useTranslations(locale);
 const minutes = readingTime(body).minutes;
+const hasVisibleCode = /(^|\n)\s*```|`[^`\n]+`|<pre\b|<code\b/i.test(body);
 
 // Translation siblings (used by language switcher links).
 const translations = await getTranslations(post);
@@ -53,17 +59,23 @@ const heroSrc = heroImageSrc(post);
 const heroAsset = heroImage(post);
 const showHero = shouldShowHero(post);
 const heroAlt = post.data.heroImageAlt ?? '';
-
 const articleClass = SITE.boxedArticles
-  ? 'border-base-300 bg-base-100 rounded-none border px-5 py-8 sm:px-8 sm:py-10'
-  : 'px-1 py-6 sm:px-2 sm:py-8';
+  ? 'border-base-300 bg-base-100 rounded-none border px-5 pt-5 pb-8 sm:px-8 sm:pt-6 sm:pb-10'
+  : 'px-1 pt-3 pb-6 sm:px-2 sm:pt-4 sm:pb-8';
+const tagHue = (tag: string) =>
+  [...tag].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) % 360, 0);
+const postStyle = getPostStyle(post);
+const displayTags = orderedTags(post);
 
 // Use hero image for OG if available, otherwise fallback to the generated OG image
 // (unless Auto-OG is disabled globally or skipped in CI).
 const ogSlug = postSlug(post);
 const ogPrefix = locale === SITE.defaultLocale ? '' : `${locale}/`;
 const generatedOgPath = `/og/${ogPrefix}${ogSlug}.png`;
-const skipAutoOg = !SITE.autoOgImage || import.meta.env.CI_SKIP_AUTO_OG_IMAGE === 'true';
+const skipAutoOg =
+  !SITE.autoOgImage ||
+  import.meta.env.CI_SKIP_AUTO_OG_IMAGE === 'true' ||
+  (import.meta.env.PROD && isDemoPost(post));
 const ogImage = heroSrc ?? (skipAutoOg ? undefined : generatedOgPath);
 
 const seo = buildSeo({
@@ -84,6 +96,10 @@ const crumbs = [
   { label: t('nav.posts'), href: localizedPath('/', locale) },
   { label: post.data.title },
 ];
+const showGermanFallbackNotice = locale === SITE.defaultLocale && !translations.de;
+const postHeroWidths = [640, 768, 960, 1152, 1280];
+const postHeroSizes =
+  '(max-width: 639px) calc(100vw - 2rem), (max-width: 1023px) calc(100vw - 3rem), (max-width: 1279px) calc(100vw - 22.25rem), (max-width: 1439px) 648px, (max-width: 1649px) 788px, 950px';
 ---
 
 <BaseLayout
@@ -96,25 +112,43 @@ const crumbs = [
   crumbs={crumbs}
   seo={seo}
   availableLocales={availableLocales}
+  loadMono={hasVisibleCode}
 >
+  {/* Translation links exposed for the LanguageSwitcher to read at runtime */}
+  <script is:inline define:vars={{ links: translationLinks, path: pathWithoutLocale }}>
+    window.__chirpyTranslations = { path, links };
+  </script>
+
   {post.data.math && <MathStyles />}
   {
     post.data.toc && headings.length > 0 && (
       <TableOfContents slot="aside-bottom" headings={headings} locale={locale} />
     )
   }
+  {showGermanFallbackNotice && <FallbackLocaleBanner fallbackHref={localizedPath('/', 'de')} />}
 
-  <article class={articleClass}>
-    <header class="mb-8">
+  <article
+    class:list={[
+      articleClass,
+      'post-article',
+      postStyle.className,
+      postStyle.definition && 'has-style-tag',
+    ]}
+    data-style-tag={postStyle.tag}
+    style={styleProperties(postStyle)}
+  >
+    <header class="border-b-base-content mb-8 border-b pb-6">
       <h1
-        class="text-base-content text-3xl leading-tight font-extrabold tracking-tight sm:text-[2.25rem]"
+        class="post-transition-title text-base-content text-3xl leading-tight font-extrabold tracking-tight sm:text-[2.25rem]"
       >
         {post.data.title}
       </h1>
-      <p class="text-base-content mt-3 text-lg">{post.data.description}</p>
+      <p class="post-transition-description text-base-content mt-3 text-lg">
+        {post.data.description}
+      </p>
 
       <div class="text-base-content mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-        <span class="inline-flex items-center gap-1">
+        <span class="post-transition-date inline-flex items-center gap-1">
           <Icon name="lucide:calendar-days" width={14} height={14} />
           <time datetime={isoDate(post.data.pubDate)}>{formatDate(post.data.pubDate, locale)}</time>
         </span>
@@ -130,7 +164,7 @@ const crumbs = [
         }
         {
           post.data.categories.length > 0 && (
-            <span class="inline-flex items-center gap-1">
+            <span class="post-transition-categories inline-flex items-center gap-1">
               <Icon name="lucide:folder" width={14} height={14} />
               {post.data.categories.map((c, i) => (
                 <>
@@ -148,19 +182,28 @@ const crumbs = [
           {minutes}
           {t('post.readingTime')}
         </span>
+        {
+          displayTags.length > 0 && (
+            <span
+              class="post-transition-tags inline-flex flex-wrap items-center gap-1.5"
+              aria-label={t('post.tags')}
+            >
+              {displayTags.map((tag) => {
+                const isStyle = postStyle.definition?.slug === normalizeStyleTag(tag);
+                return (
+                  <a
+                    href={tagPath(locale, tag)}
+                    class:list={['post-tag', isStyle && 'post-tag--style']}
+                    style={isStyle ? undefined : `--tag-hue: ${tagHue(tag)}`}
+                  >
+                    {tag}
+                  </a>
+                );
+              })}
+            </span>
+          )
+        }
       </div>
-
-      {
-        post.data.tags.length > 0 && (
-          <div class="mt-5 flex flex-wrap gap-2" aria-label={t('post.tags')}>
-            {post.data.tags.map((tag) => (
-              <a href={tagPath(locale, tag)} class="post-tag text-sm">
-                {tag}
-              </a>
-            ))}
-          </div>
-        )
-      }
     </header>
 
     {
@@ -172,9 +215,10 @@ const crumbs = [
               alt={heroAlt}
               class="post-hero__img"
               loading="eager"
-              widths={[480, 768, 1024, 1280, 1600]}
-              sizes="(max-width: 768px) 100vw, 1024px"
-              quality={82}
+              fetchpriority="high"
+              widths={postHeroWidths}
+              sizes={postHeroSizes}
+              quality={78}
             />
           </div>
           {heroAlt && (
@@ -199,8 +243,3 @@ const crumbs = [
     }
   </article>
 </BaseLayout>
-
-{/* Translation links exposed for the LanguageSwitcher to read at runtime */}
-<script is:inline define:vars={{ links: translationLinks }}>
-  window.__chirpyTranslations = links;
-</script>

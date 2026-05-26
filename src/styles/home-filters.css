@@ -1,0 +1,62 @@
+@reference './global.css';
+
+@layer components {
+  .home-filters {
+    @apply relative mb-6;
+  }
+  .home-filters__header {
+    @apply flex items-center justify-between gap-4;
+  }
+  .home-filters__title {
+    @apply text-base-content m-0 text-xl leading-tight font-extrabold tracking-normal sm:text-2xl;
+  }
+  .home-filters__trigger {
+    @apply border-base-300 bg-base-100 text-base-content hover:border-base-content hover:text-base-content inline-flex h-9 w-9 items-center justify-center rounded-none border p-0 transition;
+  }
+  .home-filters__popup[hidden],
+  .home-filters__empty[hidden] {
+    display: none;
+  }
+  .home-filters__popup {
+    @apply border-base-300 bg-base-100 absolute top-full right-0 left-0 z-20 mt-3 border p-3 shadow-lg sm:left-auto sm:w-[min(42rem,calc(100vw-3rem))] sm:p-4;
+  }
+  .home-filters__row {
+    @apply grid gap-3;
+    grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+  }
+  .home-filter-field {
+    @apply flex min-w-0 flex-col gap-1;
+  }
+  .home-filter-field label,
+  .home-filter-field > span {
+    @apply text-base-content text-xs font-extrabold tracking-[0.07em] uppercase;
+  }
+  .home-filter-field input,
+  .home-filter-field select {
+    @apply border-base-300 bg-base-200 text-base-content min-h-10 w-full rounded-none border px-3 py-2 text-sm;
+  }
+  .home-filters__footer {
+    @apply border-base-300 mt-4 flex flex-col gap-3 border-t pt-4 lg:flex-row lg:items-center lg:justify-between;
+  }
+  .home-filters__chips {
+    @apply flex min-w-0 flex-1 flex-wrap gap-2;
+  }
+  .home-filter-chip {
+    @apply border-primary bg-primary/10 text-primary inline-flex items-center rounded-none border px-2.5 py-1 text-xs font-extrabold tracking-[0.04em];
+  }
+  button.home-filter-chip {
+    @apply cursor-pointer;
+  }
+  .home-filter-chip--muted {
+    @apply border-base-300 bg-base-200 text-base-content;
+  }
+  .home-filters__count {
+    @apply text-base-content m-0 text-sm font-bold;
+  }
+  .home-filters__clear {
+    @apply border-base-300 bg-base-100 text-base-content hover:border-primary hover:text-primary min-h-10 rounded-none border px-3 py-2 text-sm font-bold;
+  }
+  .home-filters__empty {
+    @apply border-base-300 text-base-content mb-6 border border-dashed px-6 py-10 text-center;
+  }
+}

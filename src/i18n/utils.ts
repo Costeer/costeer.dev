@@ -10,6 +10,7 @@
  */
 
 import { SITE, type Locale } from '../config';
+import { stripBasePath } from '../utils/browser-strings';
 import { messages, type UIKey } from './ui';
 
 const DEFAULT_LOCALE: Locale = SITE.defaultLocale;
@@ -68,11 +69,8 @@ export function detectLocale(pathname: string): Locale {
 }
 
 /** Strip the configured base path prefix from a pathname. */
-function stripBase(pathname: string): string {
-  if (!BASE) return pathname;
-  if (pathname === BASE) return '/';
-  if (pathname.startsWith(`${BASE}/`)) return pathname.slice(BASE.length);
-  return pathname;
+export function stripBase(pathname: string): string {
+  return stripBasePath(pathname, BASE);
 }
 
 /**

@@ -5,9 +5,8 @@
  * One-stop wrapper around `<Image>` from `astro:assets` that:
  *
  *  - **Remote URLs (http/https)** → optimized by Astro's image service
- *    (Sharp by default). Generates a modern-format `srcset`, queries
- *    intrinsic dimensions at build time via `inferSize`, and emits
- *    responsive sizing styles (Astro 6 responsive images).
+ *    (Sharp by default). Generates a modern-format `srcset` and uses explicit
+ *    dimensions so builds don't depend on remote dimension probing.
  *
  *  - **Public-folder paths (`/something.jpg`)** → emitted as a plain
  *    `<img>`. Astro cannot transform anything in `public/`, so wrapping
@@ -72,8 +71,10 @@ const isRemote =
 const isOptimizable = !isStringSrc || isRemote;
 
 // Sensible defaults so callers don't have to think about it.
-const defaultWidths = widths ?? [400, 640, 800, 1200, 1600];
-const defaultSizes = sizes ?? '(max-width: 768px) 100vw, 1024px';
+const defaultWidths = widths ?? [320, 480, 640, 960, 1280];
+const defaultSizes = sizes ?? '(max-width: 768px) calc(100vw - 2rem), 960px';
+const defaultRemoteWidth = width ?? 1280;
+const defaultRemoteHeight = height ?? 720;
 ---
 
 {
@@ -83,7 +84,8 @@ const defaultSizes = sizes ?? '(max-width: 768px) 100vw, 1024px';
       <Image
         src={src as string}
         alt={alt}
-        inferSize
+        width={defaultRemoteWidth}
+        height={defaultRemoteHeight}
         widths={defaultWidths}
         sizes={defaultSizes}
         layout={layout}
@@ -92,8 +94,6 @@ const defaultSizes = sizes ?? '(max-width: 768px) 100vw, 1024px';
         loading={loading}
         decoding={decoding}
         class={className}
-        {...(width ? { width } : {})}
-        {...(height ? { height } : {})}
         {...rest}
       />
     ) : (

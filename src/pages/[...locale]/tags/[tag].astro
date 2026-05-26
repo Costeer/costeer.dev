@@ -3,7 +3,7 @@ import { SITE } from '~/config';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import PostList from '~/components/PostList.astro';
 import { useTranslations, localizedPath } from '~/i18n/utils';
-import { getPosts, getTagsWithCount, slugify } from '~/utils/posts';
+import { getVisiblePosts, getTagsWithCount, slugify } from '~/utils/posts';
 
 interface Props {
   tagName: string;
@@ -28,7 +28,9 @@ export async function getStaticPaths() {
 const { tagName, locale } = Astro.props as Props;
 const { tag } = Astro.params;
 const t = useTranslations(locale);
-const posts = (await getPosts(locale)).filter((p) => p.data.tags.some((tg) => slugify(tg) === tag));
+const posts = (await getVisiblePosts(locale)).filter((p) =>
+  p.data.tags.some((tg) => slugify(tg) === tag),
+);
 ---
 
 <BaseLayout
@@ -39,7 +41,7 @@ const posts = (await getPosts(locale)).filter((p) => p.data.tags.some((tg) => sl
     { label: `#${tagName}` },
   ]}
 >
-  <header class="mb-6">
+  <header class="chirpy-page-header mb-6">
     <p class="text-base-content text-sm tracking-wide uppercase">{t('list.tagPosts')}</p>
     <h1 class="text-3xl font-bold tracking-tight">#{tagName}</h1>
     <p class="text-base-content mt-1 text-sm">

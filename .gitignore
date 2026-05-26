@@ -3,6 +3,7 @@ dist/
 .output/
 .vercel/
 .netlify/
+.bun
 
 # generated types
 .astro/
@@ -39,3 +40,4 @@ pagefind/
 
 # misc
 *.log
+.agents

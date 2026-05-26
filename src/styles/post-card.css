@@ -1,0 +1,382 @@
+@reference './global.css';
+
+@layer components {
+  [data-theme='chirpy-dark'] .language-marker {
+    border-color: var(--color-accent);
+    background: color-mix(in oklch, var(--color-accent) 24%, var(--color-base-100));
+    color: oklch(92% 0.04 84);
+  }
+
+  [data-theme='chirpy-dark'] .language-marker--code {
+    box-shadow: 3px 3px 0 var(--color-primary);
+  }
+
+  [data-theme='chirpy-dark'] .language-marker--label {
+    background: linear-gradient(
+      90deg,
+      color-mix(in oklch, var(--color-accent) 48%, var(--color-base-100)) 0.42rem,
+      color-mix(in oklch, var(--color-accent) 24%, var(--color-base-100)) 0.42rem
+    );
+  }
+
+  [data-theme='chirpy-dark'] .language-marker--note {
+    background: transparent;
+    color: color-mix(in oklab, var(--color-base-content) 88%, oklch(76% 0.13 75));
+  }
+
+  /* Post card — horizontal Chirpy card */
+  .chirpy-card {
+    --reading-stack-coral: oklch(91% 0.055 28);
+    --reading-stack-cyan: oklch(91% 0.036 198);
+    --reading-stack-violet: oklch(90% 0.035 305);
+    --reading-stack-neutral: oklch(86% 0.018 264);
+    --reading-stack-coral-border: oklch(72% 0.12 28);
+    --reading-stack-cyan-border: oklch(74% 0.075 198);
+    --reading-stack-violet-border: oklch(72% 0.075 305);
+    --reading-stack-neutral-border: color-mix(
+      in oklch,
+      var(--color-base-content) 20%,
+      var(--color-base-300)
+    );
+    --reading-stack-1: var(--reading-stack-coral);
+    --reading-stack-2: oklch(91% 0.036 198);
+    --reading-stack-3: oklch(90% 0.035 305);
+    --reading-stack-4: oklch(86% 0.018 264);
+    --reading-stack-border-1: var(--reading-stack-coral-border);
+    --reading-stack-border-2: var(--reading-stack-cyan-border);
+    --reading-stack-border-3: var(--reading-stack-violet-border);
+    --reading-stack-border-4: var(--reading-stack-neutral-border);
+    --reading-stack-reserve: 0rem;
+    @apply mb-5 rounded-none bg-transparent transition hover:-translate-y-0.5;
+    border: 0;
+    box-shadow: none;
+    isolation: isolate;
+    position: relative;
+    z-index: 0;
+  }
+  .reading-depth-layer {
+    border: 1px solid var(--color-base-300);
+    inset: 0 var(--reading-stack-reserve) var(--reading-stack-reserve) 0;
+    pointer-events: none;
+    position: absolute;
+    transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reading-depth-layer--1 {
+    background: var(--reading-stack-1);
+    transform: translate(0.34rem, 0.34rem);
+    transition-delay: 0ms;
+    z-index: -1;
+  }
+  .reading-depth-layer--2 {
+    background: var(--reading-stack-2);
+    transform: translate(0.68rem, 0.68rem);
+    transition-delay: 25ms;
+    z-index: -2;
+  }
+  .reading-depth-layer--3 {
+    background: var(--reading-stack-3);
+    transform: translate(1.02rem, 1.02rem);
+    transition-delay: 50ms;
+    z-index: -3;
+  }
+  .reading-depth-layer--4 {
+    background: var(--reading-stack-4);
+    transform: translate(1.36rem, 1.36rem);
+    transition-delay: 75ms;
+    z-index: -4;
+  }
+  .reading-depth-1 .reading-depth-layer,
+  .reading-depth-2 .reading-depth-layer--2,
+  .reading-depth-2 .reading-depth-layer--3,
+  .reading-depth-2 .reading-depth-layer--4,
+  .reading-depth-3 .reading-depth-layer--3,
+  .reading-depth-3 .reading-depth-layer--4,
+  .reading-depth-4 .reading-depth-layer--4 {
+    display: none;
+  }
+  .chirpy-card:hover .reading-depth-layer--1 {
+    transform: translate(0.4rem, 0.4rem);
+  }
+  .chirpy-card:hover .reading-depth-layer--2 {
+    transform: translate(0.8rem, 0.8rem);
+  }
+  .chirpy-card:hover .reading-depth-layer--3 {
+    transform: translate(1.2rem, 1.2rem);
+  }
+  .chirpy-card:hover .reading-depth-layer--4 {
+    transform: translate(1.6rem, 1.6rem);
+  }
+
+  .chirpy-card.reading-depth-2 {
+    --reading-stack-reserve: 0.4rem;
+    padding-right: var(--reading-stack-reserve);
+    padding-bottom: var(--reading-stack-reserve);
+  }
+  .chirpy-card.reading-depth-3 {
+    --reading-stack-reserve: 0.8rem;
+    padding-right: var(--reading-stack-reserve);
+    padding-bottom: var(--reading-stack-reserve);
+  }
+  .chirpy-card.reading-depth-4 {
+    --reading-stack-reserve: 1.2rem;
+    padding-right: var(--reading-stack-reserve);
+    padding-bottom: var(--reading-stack-reserve);
+  }
+  .chirpy-card.reading-depth-5 {
+    --reading-stack-reserve: 1.6rem;
+    padding-right: var(--reading-stack-reserve);
+    padding-bottom: var(--reading-stack-reserve);
+  }
+
+  #post-list .chirpy-card:nth-child(4n + 2) {
+    --reading-stack-1: var(--reading-stack-cyan);
+    --reading-stack-2: var(--reading-stack-violet);
+    --reading-stack-3: var(--reading-stack-neutral);
+    --reading-stack-4: var(--reading-stack-coral);
+    --reading-stack-border-1: var(--reading-stack-cyan-border);
+    --reading-stack-border-2: var(--reading-stack-violet-border);
+    --reading-stack-border-3: var(--reading-stack-neutral-border);
+    --reading-stack-border-4: var(--reading-stack-coral-border);
+  }
+  #post-list .chirpy-card:nth-child(4n + 3) {
+    --reading-stack-1: var(--reading-stack-violet);
+    --reading-stack-2: var(--reading-stack-neutral);
+    --reading-stack-3: var(--reading-stack-coral);
+    --reading-stack-4: var(--reading-stack-cyan);
+    --reading-stack-border-1: var(--reading-stack-violet-border);
+    --reading-stack-border-2: var(--reading-stack-neutral-border);
+    --reading-stack-border-3: var(--reading-stack-coral-border);
+    --reading-stack-border-4: var(--reading-stack-cyan-border);
+  }
+  #post-list .chirpy-card:nth-child(4n) {
+    --reading-stack-1: var(--reading-stack-neutral);
+    --reading-stack-2: var(--reading-stack-coral);
+    --reading-stack-3: var(--reading-stack-cyan);
+    --reading-stack-4: var(--reading-stack-violet);
+    --reading-stack-border-1: var(--reading-stack-neutral-border);
+    --reading-stack-border-2: var(--reading-stack-coral-border);
+    --reading-stack-border-3: var(--reading-stack-cyan-border);
+    --reading-stack-border-4: var(--reading-stack-violet-border);
+  }
+
+  #post-list .reading-depth-layer--1 {
+    border-color: var(--reading-stack-border-1);
+    transform: translate(0.28rem, 0.28rem);
+  }
+  #post-list .reading-depth-layer--2 {
+    border-color: var(--reading-stack-border-2);
+    transform: translate(0.56rem, 0.56rem);
+  }
+  #post-list .reading-depth-layer--3 {
+    border-color: var(--reading-stack-border-3);
+    transform: translate(0.84rem, 0.84rem);
+  }
+  #post-list .reading-depth-layer--4 {
+    border-color: var(--reading-stack-border-4);
+    transform: translate(1.12rem, 1.12rem);
+  }
+  #post-list .chirpy-card:hover .reading-depth-layer--1 {
+    transform: translate(0.38rem, 0.38rem);
+  }
+  #post-list .chirpy-card:hover .reading-depth-layer--2 {
+    transform: translate(0.76rem, 0.76rem);
+  }
+  #post-list .chirpy-card:hover .reading-depth-layer--3 {
+    transform: translate(1.14rem, 1.14rem);
+  }
+  #post-list .chirpy-card:hover .reading-depth-layer--4 {
+    transform: translate(1.52rem, 1.52rem);
+  }
+  .chirpy-card:hover {
+    box-shadow: none;
+  }
+  .chirpy-card:hover .chirpy-card-link {
+    box-shadow:
+      0 2px 4px -1px rgba(0, 0, 0, 0.05),
+      0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  [data-theme='chirpy-dark'] .chirpy-card:hover .chirpy-card-link {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--color-primary) 18%, transparent),
+      0 16px 32px color-mix(in oklab, var(--color-base-200) 78%, transparent);
+  }
+  .chirpy-card-float-in {
+    animation: chirpy-card-float-in 260ms ease-out both;
+    animation-delay: var(--chirpy-card-delay, 0ms);
+  }
+  .chirpy-card-lazy {
+    content-visibility: auto;
+    contain-intrinsic-size: 260px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chirpy-card-float-in {
+      animation: none;
+    }
+  }
+  @keyframes chirpy-card-float-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.75rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .chirpy-card-link {
+    @apply border-base-300 bg-base-100 grid grid-cols-1 gap-0 overflow-hidden border md:grid-cols-12;
+    position: relative;
+    z-index: 1;
+  }
+  /* Image cards can be fixed-size (default Chirpy behavior) or dynamic
+     based on `SITE.dynamicPostCardHeight`. */
+  .chirpy-card-link.has-image {
+    @apply md:grid-cols-12;
+  }
+
+  .chirpy-card-body {
+    @apply flex min-w-0 flex-col p-4 sm:p-5 md:col-span-7 md:p-6;
+  }
+  .chirpy-card-body.full {
+    @apply md:col-span-12;
+  }
+  .chirpy-card-link.no-image .chirpy-card-body {
+    @apply md:p-5;
+  }
+  /* Title and description gain line-clamps so a very long title (or a
+     verbose description) cannot push the card past the fixed height. */
+  .chirpy-card-title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .chirpy-card-title-row .chirpy-card-title {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .chirpy-card-title {
+    @apply text-base-content mt-0 text-2xl leading-snug font-bold tracking-tight sm:text-[1.55rem];
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .chirpy-card-title.compact {
+    @apply md:text-[1.4rem];
+  }
+  .language-marker {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    min-height: 1.55rem;
+    border: 1px solid oklch(44% 0.16 305);
+    background: oklch(93% 0.045 75);
+    color: oklch(25% 0.055 305);
+    padding: 0.14rem 0.42rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-transform: uppercase;
+    vertical-align: 0.1em;
+  }
+  .language-marker--card {
+    margin-top: 0.12rem;
+  }
+  .language-marker--inline {
+    min-height: 1.2rem;
+    padding: 0.08rem 0.32rem;
+    font-size: 0.64rem;
+    vertical-align: middle;
+  }
+  .language-marker--code {
+    min-width: 2.2rem;
+    box-shadow: 3px 3px 0 oklch(44% 0.16 305);
+    letter-spacing: 0.1em;
+  }
+  .language-marker--label {
+    background: linear-gradient(90deg, oklch(86% 0.08 75) 0.42rem, oklch(93% 0.045 75) 0.42rem);
+    padding-inline: 0.48rem 0.56rem;
+  }
+  .language-marker--note {
+    border-style: dashed;
+    background: transparent;
+    color: color-mix(in oklab, var(--color-base-content) 88%, oklch(44% 0.16 305));
+    text-transform: none;
+    letter-spacing: 0.01em;
+    font-weight: 700;
+  }
+  .language-marker--inline.language-marker--note {
+    font-size: 0.68rem;
+  }
+  @media (min-width: 768px) {
+    .chirpy-card-link.has-image.dynamic-size .chirpy-card-title {
+      display: block;
+      -webkit-line-clamp: unset;
+      line-clamp: unset;
+      -webkit-box-orient: unset;
+      overflow: visible;
+    }
+    .chirpy-card-link.has-image.dynamic-size .chirpy-card-body > p {
+      -webkit-line-clamp: unset;
+      line-clamp: unset;
+      overflow: visible;
+      display: block;
+    }
+  }
+  .chirpy-card-image-wrap {
+    @apply order-first overflow-hidden md:order-last md:col-span-5 md:flex md:flex-col;
+  }
+  .chirpy-card-image {
+    @apply h-44 w-full object-cover md:min-h-0 md:flex-1 md:rounded-none;
+  }
+
+  [data-theme='chirpy-dark'] .chirpy-card {
+    --reading-stack-coral: oklch(33% 0.055 25);
+    --reading-stack-cyan: oklch(32.5% 0.042 210);
+    --reading-stack-violet: oklch(33% 0.048 316);
+    --reading-stack-neutral: oklch(29% 0.01 278);
+    --reading-stack-coral-border: oklch(68% 0.11 25);
+    --reading-stack-cyan-border: oklch(68% 0.075 210);
+    --reading-stack-violet-border: oklch(70% 0.09 316);
+    --reading-stack-neutral-border: color-mix(
+      in oklch,
+      var(--color-base-content) 24%,
+      var(--color-base-300)
+    );
+  }
+  [data-theme='chirpy-dark'] .chirpy-card-link {
+    border-color: color-mix(in oklab, var(--color-base-content) 16%, var(--color-base-300));
+    background: color-mix(in oklab, var(--color-base-100) 94%, var(--color-base-200));
+  }
+
+  .chirpy-card.has-style-tag {
+    background: transparent;
+  }
+  .chirpy-card.has-style-tag .chirpy-card-link {
+    border-color: color-mix(in oklch, oklch(76% 0.075 var(--style-hue)) 42%, var(--color-base-300));
+    background:
+      radial-gradient(
+        circle at var(--style-gradient-drift),
+        oklch(96% 0.026 var(--style-hue)),
+        transparent 48%
+      ),
+      var(--color-base-100);
+  }
+
+  [data-theme='chirpy-dark'] .chirpy-card.has-style-tag {
+    background: transparent;
+  }
+  [data-theme='chirpy-dark'] .chirpy-card.has-style-tag .chirpy-card-link {
+    border-color: color-mix(in oklch, oklch(66% 0.085 var(--style-hue)) 48%, var(--color-base-300));
+    background:
+      radial-gradient(
+        circle at var(--style-gradient-drift),
+        color-mix(in oklch, oklch(37% 0.055 var(--style-hue)) 58%, var(--color-base-100)),
+        transparent 50%
+      ),
+      var(--color-base-100);
+  }
+}

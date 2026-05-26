@@ -24,6 +24,10 @@ function statusInfoFromUrl(url?: string): { id: string; instance: string } {
   if (!url) return { id: '', instance: '' };
   try {
     const parsed = new URL(url);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return { id: '', instance: '' };
+    }
+
     return {
       id: parsed.pathname.split('/').filter(Boolean).at(-1) ?? '',
       instance: parsed.origin,
@@ -36,7 +40,8 @@ function statusInfoFromUrl(url?: string): { id: string; instance: string } {
 const statusInfo = statusInfoFromUrl(statusUrl);
 const configured = Boolean(statusInfo.instance && statusInfo.id && statusUrl);
 type CommentState = 'live' | 'setup' | 'disabled';
-const state: CommentState = !MASTODON_COMMENTS.enabled || !enabled ? 'disabled' : configured ? 'live' : 'setup';
+const state: CommentState =
+  !MASTODON_COMMENTS.enabled || !enabled ? 'disabled' : configured ? 'live' : 'setup';
 ---
 
 <section class="border-base-300 mt-12 border-t pt-8" aria-labelledby="comments-heading">
@@ -58,15 +63,25 @@ const state: CommentState = !MASTODON_COMMENTS.enabled || !enabled ? 'disabled' 
 
   {
     state === 'setup' && (
-      <div role="note" class="border-base-300 bg-base-200/60 flex gap-4 rounded-none border p-5 text-sm sm:p-6">
-        <div class="bg-info/15 text-info flex h-9 w-9 shrink-0 items-center justify-center rounded-none" aria-hidden="true">
+      <div
+        role="note"
+        class="border-base-300 bg-base-200/60 flex gap-4 rounded-none border p-5 text-sm sm:p-6"
+      >
+        <div
+          class="bg-info/15 text-info flex h-9 w-9 shrink-0 items-center justify-center rounded-none"
+          aria-hidden="true"
+        >
           <Icon name="simple-icons:mastodon" width={18} height={18} />
         </div>
         <div class="min-w-0 flex-1">
           <p class="text-base-content text-base font-semibold">{t('post.commentsSetupTitle')}</p>
           <p class="text-base-content mt-1">{t('post.commentsSetupBody')}</p>
           <p class="text-base-content mt-3">
-            Add <code class="rounded-none border border-base-300 bg-base-100 px-1.5 py-0.5 text-[0.8em] font-mono">mastodonStatusUrl</code> to this post's frontmatter.
+            Add{' '}
+            <code class="border-base-300 bg-base-100 rounded-none border px-1.5 py-0.5 font-mono text-[0.8em]">
+              mastodonStatusUrl
+            </code>{' '}
+            to this post's frontmatter.
           </p>
         </div>
       </div>
@@ -113,27 +128,144 @@ const state: CommentState = !MASTODON_COMMENTS.enabled || !enabled ? 'disabled' 
     },
   } as const;
 
-  function escapeHtml(input: string) {
-    const node = document.createElement('div');
-    node.textContent = input;
-    return node.innerHTML;
+  const allowedContentTags = new Set([
+    'A',
+    'B',
+    'BLOCKQUOTE',
+    'BR',
+    'CODE',
+    'EM',
+    'I',
+    'LI',
+    'OL',
+    'P',
+    'PRE',
+    'SPAN',
+    'STRONG',
+    'UL',
+  ]);
+  const blockedContentTags = new Set([
+    'IFRAME',
+    'MATH',
+    'OBJECT',
+    'SCRIPT',
+    'STYLE',
+    'SVG',
+    'TEMPLATE',
+  ]);
+
+  function safeUrl(input: string | undefined, fallback = '#') {
+    if (!input) return fallback;
+    try {
+      const url = new URL(input, window.location.origin);
+      return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  function sanitizeMastodonContent(html: string) {
+    const template = document.createElement('template');
+    template.innerHTML = html;
+
+    const sanitizeNode = (node: Node) => {
+      if (node.nodeType === Node.TEXT_NODE) return;
+
+      if (node.nodeType !== Node.ELEMENT_NODE) {
+        node.parentNode?.removeChild(node);
+        return;
+      }
+
+      const element = node as HTMLElement;
+      if (blockedContentTags.has(element.tagName)) {
+        element.remove();
+        return;
+      }
+
+      if (!allowedContentTags.has(element.tagName)) {
+        for (const child of Array.from(element.childNodes)) {
+          sanitizeNode(child);
+        }
+        element.replaceWith(...Array.from(element.childNodes));
+        return;
+      }
+
+      const href = element instanceof HTMLAnchorElement ? element.getAttribute('href') : undefined;
+
+      for (const attr of Array.from(element.attributes)) {
+        element.removeAttribute(attr.name);
+      }
+
+      if (element instanceof HTMLAnchorElement) {
+        element.href = safeUrl(href ?? undefined);
+        element.rel = 'nofollow noopener noreferrer';
+        element.target = '_blank';
+      }
+
+      for (const child of Array.from(element.childNodes)) {
+        sanitizeNode(child);
+      }
+    };
+
+    for (const child of Array.from(template.content.childNodes)) {
+      sanitizeNode(child);
+    }
+
+    return template.content;
+  }
+
+  function cleanAccountName(displayName: string, username: string) {
+    const name = displayName || username;
+    const withoutShortcodes = name.replace(/:[A-Za-z0-9_+-]+:/g, '');
+    const withoutEmoji = withoutShortcodes.replace(/\p{Extended_Pictographic}/gu, '');
+    return withoutEmoji.replace(/\s+/g, ' ').trim() || username;
   }
 
   function renderStatus(status: MastodonStatus) {
-    const name = escapeHtml(status.account.display_name || status.account.username);
-    const acct = escapeHtml(status.account.acct);
-    return `
-      <article class="border-base-300 rounded-none border p-4">
-        <header class="mb-3 flex items-center gap-3">
-          <img src="${status.account.avatar}" alt="" class="h-10 w-10 rounded-none" loading="lazy" />
-          <div class="min-w-0">
-            <a href="${status.account.url}" class="text-base-content hover:text-primary font-semibold" rel="nofollow noopener noreferrer" target="_blank">${name}</a>
-            <p class="text-base-content truncate text-xs">@${acct}</p>
-          </div>
-          <a href="${status.url}" class="text-base-content hover:text-primary ml-auto text-xs" rel="nofollow noopener noreferrer" target="_blank">${new Date(status.created_at).toLocaleDateString()}</a>
-        </header>
-        <div class="prose-chirpy max-w-none text-sm">${status.content}</div>
-      </article>`;
+    const article = document.createElement('article');
+    article.className = 'border-base-300 rounded-none border p-4';
+
+    const header = document.createElement('header');
+    header.className = 'mb-3 flex items-center gap-3';
+
+    const avatar = document.createElement('img');
+    avatar.src = safeUrl(status.account.avatar, '');
+    avatar.alt = '';
+    avatar.className = 'h-10 w-10 rounded-none';
+    avatar.loading = 'lazy';
+
+    const account = document.createElement('div');
+    account.className = 'min-w-0';
+
+    const accountLink = document.createElement('a');
+    accountLink.href = safeUrl(status.account.url);
+    accountLink.className = 'text-base-content hover:text-primary font-semibold';
+    accountLink.rel = 'nofollow noopener noreferrer';
+    accountLink.target = '_blank';
+    accountLink.textContent = cleanAccountName(
+      status.account.display_name,
+      status.account.username,
+    );
+
+    const acct = document.createElement('p');
+    acct.className = 'text-base-content truncate text-xs';
+    acct.textContent = `@${status.account.acct}`;
+
+    const statusLink = document.createElement('a');
+    statusLink.href = safeUrl(status.url);
+    statusLink.className = 'text-base-content hover:text-primary ml-auto text-xs';
+    statusLink.rel = 'nofollow noopener noreferrer';
+    statusLink.target = '_blank';
+    statusLink.textContent = new Date(status.created_at).toLocaleDateString();
+
+    const content = document.createElement('div');
+    content.className = 'prose-chirpy max-w-none text-sm';
+    content.append(sanitizeMastodonContent(status.content));
+
+    account.append(accountLink, acct);
+    header.append(avatar, account, statusLink);
+    article.append(header, content);
+    return article;
   }
 
   async function mountMastodonComments() {
@@ -151,21 +283,52 @@ const state: CommentState = !MASTODON_COMMENTS.enabled || !enabled ? 'disabled' 
       const response = await fetch(`${instance}/api/v1/statuses/${statusId}/context`);
       if (!response.ok) throw new Error(`Mastodon API returned ${response.status}`);
       const context = (await response.json()) as { descendants?: MastodonStatus[] };
-      const replies = (context.descendants ?? []).filter((status) => status.in_reply_to_id === statusId);
+      const replies = (context.descendants ?? []).filter(
+        (status) => status.in_reply_to_id === statusId,
+      );
 
-      mount.innerHTML = `
-        <div class="mb-4 flex flex-wrap gap-2">
-          <a class="btn btn-primary btn-sm" href="${statusUrl}" target="_blank" rel="nofollow noopener noreferrer">${strings.reply}</a>
-          <a class="btn btn-ghost btn-sm" href="${statusUrl}" target="_blank" rel="nofollow noopener noreferrer">${strings.view}</a>
-        </div>
-        ${replies.length ? `<div class="space-y-4">${replies.map(renderStatus).join('')}</div>` : `<p class="text-base-content text-sm">${strings.empty}</p>`}
-      `;
+      const actions = document.createElement('div');
+      actions.className = 'mb-4 flex flex-wrap gap-2';
+
+      const reply = document.createElement('a');
+      reply.className = 'btn btn-primary btn-sm';
+      reply.href = safeUrl(statusUrl);
+      reply.target = '_blank';
+      reply.rel = 'nofollow noopener noreferrer';
+      reply.textContent = strings.reply;
+
+      const view = document.createElement('a');
+      view.className = 'btn btn-ghost btn-sm';
+      view.href = safeUrl(statusUrl);
+      view.target = '_blank';
+      view.rel = 'nofollow noopener noreferrer';
+      view.textContent = strings.view;
+
+      actions.append(reply, view);
+
+      if (replies.length) {
+        const list = document.createElement('div');
+        list.className = 'space-y-4';
+        list.append(...replies.map(renderStatus));
+        mount.replaceChildren(actions, list);
+      } else {
+        const empty = document.createElement('p');
+        empty.className = 'text-base-content text-sm';
+        empty.textContent = strings.empty;
+        mount.replaceChildren(actions, empty);
+      }
     } catch (error) {
       console.error(error);
-      mount.innerHTML = `<p class="text-error text-sm">${strings.error}</p>`;
+      const message = document.createElement('p');
+      message.className = 'text-error text-sm';
+      message.textContent = strings.error;
+      mount.replaceChildren(message);
     }
   }
 
+  const windowWithMastodonComments = window as typeof window & {
+    __mastodonCommentsBoot?: () => void;
+  };
+  windowWithMastodonComments.__mastodonCommentsBoot = mountMastodonComments;
   mountMastodonComments();
-  document.addEventListener('astro:page-load', mountMastodonComments);
 </script>

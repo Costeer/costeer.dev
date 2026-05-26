@@ -21,14 +21,14 @@ import { remarkAlert } from './src/plugins/remark-alert.ts';
 import { SITE } from './src/config';
 
 const rawBase = (process.env.BASE_PATH ?? '/').replace(/\/$/, '');
-const BASE = rawBase.startsWith('/') ? rawBase : `/${rawBase}`;
-const SITEMAP_XSL_HREF = `${BASE}/sitemap/styles.xsl`;
+const BASE = rawBase ? (rawBase.startsWith('/') ? rawBase : `/${rawBase}`) : '';
+const SITEMAP_XSL_HREF = `${BASE || ''}/sitemap/styles.xsl`;
 const SKIP_RSS_SITEMAP = process.env.CI_SKIP_RSS_SITEMAP === 'true';
 
 /**
  * Tiny inline integration: after `@astrojs/sitemap` runs, rewrite the
  * absolute XSL `href` it emits (always prefixed with `site`, e.g.
- * `https://aneejian.com/sitemap/styles.xsl`) to a root-relative path.
+ * `https://costeer.dev/sitemap/styles.xsl`) to a root-relative path.
  *
  * Why: a root-relative href works in BOTH environments
  *   - production: same origin as the sitemap, browsers apply the XSL
@@ -60,9 +60,33 @@ function rewriteSitemapXslToRelative() {
   };
 }
 
+/**
+ * CSS HMR swaps styles in place, but that does not replay one-shot entry
+ * animations or fully reset browser animation snapshots. During development,
+ * force a full page reload for our global stylesheet so animation and
+ * layout tweaks apply without restarting the dev server.
+ */
+function fullReloadOnGlobalStyleChange() {
+  return {
+    name: 'chirpy:full-reload-global-style',
+    handleHotUpdate(/** @type {{ file: string; server: { ws: { send: (payload: { type: string }) => void } } }} */ { file, server }) {
+      const normalized = file.replace(/\\/g, '/');
+      if (!normalized.endsWith('/src/styles/global.css')) return;
+      server.ws.send({ type: 'full-reload' });
+      return [];
+    },
+  };
+}
+
 // https://astro.build/config
 export default defineConfig({
   site: SITE.url,
+  // Keep local performance traces focused on the site itself. Astro's dev
+  // toolbar injects extra runtime work in `astro dev`, which can dominate
+  // Chrome DevTools flame charts and produce stale optimize-dep failures.
+  devToolbar: {
+    enabled: false,
+  },
   // GitHub Pages serves the project at https://<user>.github.io/<repo>/,
   // so production builds need `base` to match that subpath — every
   // generated asset URL (CSS, JS, images, favicons) is prefixed with it.
@@ -71,7 +95,7 @@ export default defineConfig({
   // `http://localhost:4321/` for a friction-free local experience. The
   // `BASE_PATH` env var (read from `.env`) lets each environment opt in:
   //   - `.env` (committed empty / unset)         → dev runs at `/`
-  //   - CI / Pages workflow sets BASE_PATH=/chirping-astro for the build
+  //   - CI / Pages workflow sets BASE_PATH=/costeer.dev for the build
   //
   // In source code, always build absolute paths through `withBase()` /
   // `localizedPath()` in `src/i18n/utils.ts` so they pick up this value
@@ -167,7 +191,7 @@ export default defineConfig({
     // markers, diffs, word wrap, collapsible sections.
     // https://expressive-code.com/
     expressiveCode({
-      themes: ['github-light', 'github-dark-dimmed'],
+      themes: ['catppuccin-latte', 'catppuccin-mocha'],
       // Bind the active theme to our `<html data-theme>` attribute instead
       // of the default `prefers-color-scheme` media query so the theme
       // toggle in the sidebar takes effect immediately.
@@ -179,8 +203,13 @@ export default defineConfig({
           env: 'dotenv',
         },
       },
+      defaultProps: {
+        overridesByLang: {
+          bash: { frame: 'code' },
+        },
+      },
       styleOverrides: {
-        borderRadius: '0.5rem',
+        borderRadius: '0px',
         codeFontFamily:
           "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
         codeFontSize: '0.875rem',
@@ -214,7 +243,7 @@ export default defineConfig({
   ],
 
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), fullReloadOnGlobalStyleChange()],
   },
 
   experimental: {
@@ -255,57 +284,6 @@ export default defineConfig({
             src: [
               './node_modules/@fontsource/lexend/files/lexend-latin-700-normal.woff2',
             ],
-          },
-          {
-            weight: '900',
-            style: 'normal',
-            src: [
-              './node_modules/@fontsource/lexend/files/lexend-latin-900-normal.woff2',
-            ],
-          },
-        ],
-      },
-    },
-    // OpenDyslexic — optional accessibility font
-    {
-      name: 'OpenDyslexic',
-      cssVariable: '--font-opendyslexic',
-      provider: fontProviders.local(),
-      options: {
-        variants: [
-          {
-            weight: '400',
-            style: 'normal',
-            src: [
-              './node_modules/@fontsource/opendyslexic/files/opendyslexic-latin-400-normal.woff2',
-            ],
-          },
-          {
-            weight: '700',
-            style: 'normal',
-            src: [
-              './node_modules/@fontsource/opendyslexic/files/opendyslexic-latin-700-normal.woff2',
-            ],
-          },
-        ],
-      },
-    },
-    // Lato — secondary font from @fontsource/lato npm package
-    {
-      name: 'Lato',
-      cssVariable: '--font-lato',
-      provider: fontProviders.local(),
-      options: {
-        variants: [
-          {
-            weight: '300',
-            style: 'normal',
-            src: ['./node_modules/@fontsource/lato/files/lato-latin-300-normal.woff2'],
-          },
-          {
-            weight: '400',
-            style: 'normal',
-            src: ['./node_modules/@fontsource/lato/files/lato-latin-400-normal.woff2'],
           },
         ],
       },

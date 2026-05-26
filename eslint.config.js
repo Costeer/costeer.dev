@@ -35,6 +35,14 @@ export default [
     },
   },
   {
-    ignores: ['dist/**', '.astro/**', 'node_modules/**', 'public/_pagefind/**'],
+    ignores: [
+      'dist/**',
+      '.astro/**',
+      '.agents/**',
+      '.bun/**',
+      '.direnv/**',
+      'node_modules/**',
+      'public/_pagefind/**',
+    ],
   },
 ];

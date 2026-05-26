@@ -2,6 +2,7 @@
 title: 'Lorem Ipsum Post 8'
 description: 'A short lorem ipsum placeholder post for testing the homepage blog list animation and layout.'
 pubDate: 2026-04-12
+draft: true
 tags: [lorem, placeholder]
 categories: [Demo]
 translationKey: lorem-ipsum-08
